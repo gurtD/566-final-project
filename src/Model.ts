@@ -11,17 +11,27 @@ enum Dirs {
     RIGHT
 }
 
+let direction: Map<Dirs, [number, number]> = new Map<Dirs, [number, number]>();
+direction.set(Dirs.UP, [0, 1]);
+direction.set(Dirs.LEFT, [-1, 0]);
+direction.set(Dirs.DOWN, [0, -1]);
+direction.set(Dirs.RIGHT,  [1, 0]);
+
 class CompatibilityOracle {
-    data: Set<[number, number, Dirs]>;
+    data: Set<string>;
 
     constructor (data: Set<[number, number, Dirs]>) {
-        this.data = new Set<[number, number, Dirs]>();
-        this.data = data;
+        this.data = new Set<string>();
+        for (let entry of data) {
+            this.data.add(String(entry[0]) + "," + String(entry[1]) + "," + String(entry[2]));
+        }
+        
+        
     }
 
     check (tile1: number, tile2: number, direction: Dirs): boolean {
-        let test: [number, number, Dirs] = [tile1, tile2, direction];
-        return this.data.has(test);
+        //let test: [number, number, Dirs] = [tile1, tile2, direction];
+        return this.data.has(String(tile1) + "," + String(tile2) + "," + String(direction));
     }
 
 }
@@ -33,8 +43,10 @@ class Wavefunction {
 
     public static mk(size: [number, number], weights: Map<number, number>): Wavefunction {
         let tiles: Set<number> = new Set<number>();
-        for(var item of new Set(Object.keys(weights))) {
-            tiles.add(Number(item));
+        
+        for(var item of Array.from(weights.keys())) {
+            
+            tiles.add(item);
         }
         
         let coefficients: Set<number>[][] = Wavefunction.init_coefficients(size, tiles);
@@ -47,11 +59,11 @@ class Wavefunction {
         for (let x = 0; x < size[0]; x++) {
             let row: Set<number>[] = [];
             for (let y = 0; y < size[1]; y++) {
-                row.push(new Set<number>(tiles));
+                row.push(new Set(tiles));
             }
             coefficients.push(row);
         }
-
+        
         return coefficients;
     } 
 
@@ -92,7 +104,7 @@ class Wavefunction {
         return collapsed;
     }
 
-    shannon_entropy(co_ord): number {
+    shannon_entropy(co_ord: [number, number]): number {
         let x: number = co_ord[0];
         let y: number = co_ord[1];
 
@@ -154,7 +166,7 @@ class Wavefunction {
         }
 
         this.coefficients[x][y] = new Set().add(chosen);
-
+        
     }
 
     constrain(co_ords: [number, number], forbidden_tile: number) {
@@ -175,6 +187,7 @@ class Model {
         this.output_size = output_size;
         this.compatibility_oracle = compatibility_oracle;
         this.wavefunction = Wavefunction.mk(output_size, weights);
+        
     }
 
     run(): number[][] {
@@ -186,7 +199,7 @@ class Model {
 
     iterate() {
         let co_ords: [number, number] = this.min_entropy_co_ords();
-
+        
         this.wavefunction.collapse(co_ords);
         this.propagate(co_ords);
     }
@@ -196,11 +209,10 @@ class Model {
         while (stack.length > 0) {
             let cur_coords: [number, number] = stack.pop();
             let cur_possible_tiles: Set<number> = this.wavefunction.get(cur_coords);
-
             for (let d of Model.valid_dirs(cur_coords, this.output_size)) {
-                let other_coords: [number, number] = [cur_coords[0] + d[0], cur_coords[1] + d[1]];
+                let other_coords: [number, number] = [cur_coords[0] + direction.get(d)[0], cur_coords[1] + direction.get(d)[1]];
 
-                for(let other_tile of new Set(this.wavefunction.get(other_coords))) {
+                for(let other_tile of this.wavefunction.get(other_coords)) {
                     let other_tile_is_possible: boolean = false;
                     for (let cur_tile of cur_possible_tiles) {
                         if (this.compatibility_oracle.check(cur_tile, other_tile, d)) {
@@ -269,8 +281,13 @@ class Model {
     }
 
     public static render(matrix: number[][]) {
+        
         for (let row of matrix) {
-            console.log(row)
+            let output: string = "";
+            for (let char of row) {
+                output = output + char;
+            }
+            console.log(output)
         }
     } 
 
@@ -289,8 +306,11 @@ class Model {
                 weights.set(matrix[x][y], weights.get(matrix[x][y]) + 1);
 
                 for (let d of this.valid_dirs([x, y], [matrix_width, matrix_height])) {
-                    let other_tile: number = matrix[x + d[0]][y + d[1]];
-                    compatibilities.add([matrix[x][y], other_tile, d]);
+                    let other_tile: number = matrix[x + direction.get(d)[0]][y + direction.get(d)[1]];
+                    if (!compatibilities.has([matrix[x][y], other_tile, d])) {
+                        compatibilities.add([matrix[x][y], other_tile, d]);
+                    }
+                    
                 }
 
             }
@@ -305,16 +325,17 @@ class Model {
         let input_matrix: number[][] = [
             [1, 1, 1, 1],
             [1, 1, 1, 1],
-            [1, 1, 1, 1],
-            [1, 2, 2, 1],
-            [2, 3, 3, 2],
+            [1, 1, 1, 2],
+            [1, 2, 2, 3],
+            [2, 3, 3, 3],
             [3, 3, 3, 3],
             [3, 3, 3, 3],
         ]
-
+        
 
         let comp_and_weights: [Set<[number, number, Dirs]>, Map<number, number>] = this.parse_example_matrix(input_matrix);
         let compatibilities: Set<[number, number, Dirs]> = comp_and_weights[0];
+        
         let weights: Map<number, number> = comp_and_weights[1];
         let compatibility_oracle: CompatibilityOracle = new CompatibilityOracle(compatibilities);
         let model: Model = new Model([10, 50], weights, compatibility_oracle);
@@ -323,5 +344,205 @@ class Model {
     }
 }
 
-export {CompatibilityOracle, Wavefunction, Model}
+class ValidGrid {
+    grid: number[][]
+    building_location: Set<[number, number]>
+
+    constructor(matrix_size: [number, number], buildings: number) {
+        this.building_location = new Set<[number, number]>();
+        let width: number = matrix_size[0];
+        let height: number = matrix_size[1];
+
+        let matrix: number[][] = []
+
+        
+        // initializes grid based off matrix_size dimensions 
+        
+
+        for (let x = 0; x <width; x++) {
+            let row: number[] = [];
+            for (let y = 0; y < height; y++) {
+                row.push(0);
+            }
+            matrix.push(row);
+        }
+
+        // create coordinates of builidings randomly
+        // places a total number of buildings specified
+        // by buildings, with no duplicate coords
+        // seen by the while loop 
+
+        let build_coords: Set<string> = new Set<string>();
+
+        for (let i = 0; i < buildings; i++) {
+            let x: number = Math.floor(Math.random() * width);
+            let y: number = Math.floor(Math.random() * height);
+
+            while (build_coords.has(String(x) + "," + String(y))) {
+                x = Math.floor(Math.random() * width);
+                y = Math.floor(Math.random() * height);
+            }
+
+            build_coords.add(String(x) + "," + String(y));
+            this.building_location.add([x, y]);
+            matrix[x][y] = 2;
+        }
+ 
+        this.grid = matrix
+    }
+
+    public static render(matrix: number[][]) {
+        
+        for (let row of matrix) {
+            let output: string = "";
+            for (let char of row) {
+                output = output + char;
+            }
+            console.log(output)
+        }
+    }
+
+    create_paths() {
+        let someBuilding: [number, number] = null;
+        let otherBuildings: Set<[number, number]> = new Set<[number, number]>();
+        let gotBuilding: boolean = false;
+        for (let building of this.building_location) {
+            if (!gotBuilding) {
+                someBuilding = building;
+                gotBuilding = true
+            } else {
+                otherBuildings.add(building);
+            }
+            
+        }
+        if (someBuilding == null) {
+            throw new Error("No building given for someBuilding in create_paths()");
+        }
+        let width: number = this.grid.length;
+        let height: number = this.grid[0].length;
+
+        let gridCopy: number[][] = this.grid;
+
+        function bfs_util(source: [number, number] , target: [number, number], buildings: Set<[number, number]>): Set<[number, number]> {
+            let visited: Set<string> = new Set<string>()
+            for (let building of buildings) {
+                if (building[0] == target[0] && building[1] == building[1]) {
+                    continue
+                }
+                visited.add(String(building[0]) + "," + String(building[1]));
+            }
+
+            let q: Array<[number, number, Set<[number, number]>]> = [];
+            visited.add(String(source[0]) + "," + String(source[1]));
+            let sourceSet: Set<[number, number]> = new Set<[number, number]>();
+            sourceSet.add([source[0], source[1]]);
+            q.push([source[0], source[1], sourceSet]);
+
+            while (q.length != 0) {
+                let p: [number, number, Set<[number, number]>] = q.shift()
+
+                let x: number = p[0];
+                let y: number = p[1];
+                //console.log("current location is %d, %d", x, y);
+
+                if (x == target[0] && y == target[1]) { 
+                    console.log("we found the point")
+                    return p[2]
+                }
+
+                for (let d of direction.values()) {
+                    let newX: number = x + d[0]
+                    let newY: number = y + d[1];
+
+                    if (newX < 0 || newX >= width || newY < 0 || newY >= height)  {
+                        continue
+                    }
+                    if (!visited.has(String(newX) + "," + String(newY))) {
+                        let copiedSet: Set<[number, number]> = new Set<[number, number]>();
+                        for (let co_ord of p[2]) {
+                            copiedSet.add([co_ord[0], co_ord[1]])
+                        }
+                        copiedSet.add([newX, newY])
+                        visited.add(String(newX) + "," + String(newY));
+                        q.push([newX, newY, copiedSet])
+                    }
+                }
+
+            }
+            return null;
+
+
+        }
+
+        /*
+        function dfs_util(co_ord: [number, number], target: [number, number], visited: Set<string>): Boolean {
+            let x: number = co_ord[0];
+            let y: number = co_ord[1];
+            
+            if (target[0] == x && target[1] == y) {
+                console.log("enter the true statment")
+                console.log("we get to %d, %d with a true", x, y)
+                return true
+            }
+
+            if (x < 0 || x >= width || y < 0 || y >= height || gridCopy[x][y] == 2)  {
+                return false
+            }
+            console.log("current x and y are %d, %d", x, y);
+            
+  
+            visited.add(String(x) + "," + String(y));
+            //console.log("we get to the for loop")
+            for (let d of direction.values()) {
+                let newX: number = x + d[0]
+                let newY: number = y + d[1];
+                if (!visited.has(String(newX) + "," + String(newY))) {
+                    if (dfs_util([newX, newY], target, visited)) {
+                        gridCopy[x][y] = 1;
+                        return true
+                    }
+                    
+                }
+            }
+
+            return false
+        }
+        */
+        console.log("the source building is %d, %d", someBuilding[0], someBuilding[1])
+        for (let otherBuilding of otherBuildings) {
+            //console.log("/////////////////////////////////////////////")
+            console.log("other building coords are %d, %d", otherBuilding[0], otherBuilding[1]);
+            //dfs_util([someBuilding[0] + 1, someBuilding[1]], otherBuilding, new Set<string>());
+            let path: Set<[number, number]> = bfs_util([someBuilding[0] + 1, someBuilding[1]] , otherBuilding, this.building_location);
+            if (path == null) {
+                console.log("path is null")
+            }
+            if (!(path == null)) {
+                //console.log("we have a path")
+                for (let p of path) {
+                    if (p[0] == otherBuilding[0] && p[1] == otherBuilding[1]) {
+                        continue
+                    }
+                    this.grid[p[0]][p[1]] = 1;
+                }
+            }
+        }
+        
+
+
+
+        //this.grid = gridCopy;
+
+    }
+
+
+    
+    public static test() {
+        let testGrid: ValidGrid = new ValidGrid([10, 10], 4);
+        testGrid.create_paths();
+        ValidGrid.render(testGrid.grid); 
+    }
+}
+
+export {CompatibilityOracle, Wavefunction, Model, ValidGrid}
 

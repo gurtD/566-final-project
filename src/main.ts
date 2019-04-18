@@ -10,7 +10,7 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 import Mesh from './geometry/Mesh';
 import {readTextFile} from './globals';
 import LSystem from './LSystem'
-import {CompatibilityOracle, Wavefunction, Model} from './Model'
+import {CompatibilityOracle, Wavefunction, Model, ValidGrid} from './Model'
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
@@ -201,6 +201,9 @@ function main() {
   // testing wfc
   console.log("Starting model test");
   Model.test();
+
+  console.log("testings valid grid initialization");
+  ValidGrid.test();
   console.log("concluding model test");
   
   // Initial display for framerate
