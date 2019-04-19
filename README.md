@@ -1,4 +1,5 @@
 # 566-final-project
+
 Currently I have a working version of a wavefunction collapse function. I copied all the base code from the l system 
 hw assignment, but only to run the code that I have written in a browser. The entirety of wave function collapse is 
 within the Model.ts file. The code is broken up into 4 components CompatibilityOracle, Wavefunction, Model, and ValidGrid.
@@ -43,6 +44,7 @@ set that has all the possible tiles. This way I can guarantee that all notable p
 makes sense. Once I do this I can then move on to actually rendering the map based of a visual tile set I still need to 
 create. Each of the numbers in the grid of the wavefunction class will correspond to a unique tile.
 
+https://gurtd.github.io/566-final-project/
 
 source based off 
 https://gist.github.com/selfsame/e7ff11205c316888977f9cac04fe4035
