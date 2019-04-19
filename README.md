@@ -42,3 +42,7 @@ location in the wavefunction grid, and do the same for roads but with the set of
 set that has all the possible tiles. This way I can guarantee that all notable parts of the level are connected properly and 
 makes sense. Once I do this I can then move on to actually rendering the map based of a visual tile set I still need to 
 create. Each of the numbers in the grid of the wavefunction class will correspond to a unique tile.
+
+
+source based off 
+https://gist.github.com/selfsame/e7ff11205c316888977f9cac04fe4035
