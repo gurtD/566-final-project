@@ -6073,6 +6073,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__ = __webpack_require__(68);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__geometry_Mesh__ = __webpack_require__(69);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__LSystem__ = __webpack_require__(71);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__Model__ = __webpack_require__(75);
+
 
 
 
@@ -6113,8 +6115,6 @@ function loadScene() {
     wahoo = new __WEBPACK_IMPORTED_MODULE_9__geometry_Mesh__["a" /* default */](obj1, __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["c" /* vec3 */].fromValues(0.0, -10.0, 0.0));
     wahoo.create();
     lSystem = new __WEBPACK_IMPORTED_MODULE_10__LSystem__["a" /* default */]("X", parameters.angle);
-    //lSystem = new LSystem("ABC");
-    //console.log(lSystem.expand(3));
     let array = lSystem.drawMatrices("TSFAAXFAAXFAAXFA" + lSystem.expand(parameters.iterations));
     console.log(array.length);
     console.log(array[0]);
@@ -6225,6 +6225,12 @@ function loadScene() {
     square.setNumInstances(n * n); // grid of "particles"
 }
 function main() {
+    // testing wfc
+    console.log("Starting model test");
+    __WEBPACK_IMPORTED_MODULE_11__Model__["a" /* Model */].test();
+    console.log("testings valid grid initialization");
+    __WEBPACK_IMPORTED_MODULE_11__Model__["b" /* ValidGrid */].test();
+    console.log("concluding model test");
     // Initial display for framerate
     const stats = __WEBPACK_IMPORTED_MODULE_1_stats_js__();
     stats.setMode(0);
@@ -6263,12 +6269,12 @@ function main() {
     //gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
     gl.enable(gl.DEPTH_TEST);
     const instancedShader = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(75)),
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(76)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(76)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(77)),
     ]);
     const flat = new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["b" /* default */]([
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(77)),
-        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(78)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.VERTEX_SHADER, __webpack_require__(78)),
+        new __WEBPACK_IMPORTED_MODULE_8__rendering_gl_ShaderProgram__["a" /* Shader */](gl.FRAGMENT_SHADER, __webpack_require__(79)),
     ]);
     // This function will be called every frame
     function tick() {
@@ -17068,24 +17074,474 @@ class Turtle {
 
 /***/ }),
 /* 75 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = "#version 300 es\r\n\r\nuniform mat4 u_ViewProj;\r\nuniform float u_Time;\r\n\r\nuniform mat3 u_CameraAxes; // Used for rendering particles as billboards (quads that are always looking at the camera)\r\n// gl_Position = center + vs_Pos.x * camRight + vs_Pos.y * camUp;\r\n\r\nin vec4 vs_Pos; // Non-instanced; each particle is the same quad drawn in a different place\r\nin vec4 vs_Nor; // Non-instanced, and presently unused\r\nin vec4 vs_Col; // An instanced rendering attribute; each particle instance has a different color\r\nin vec3 vs_Translate; // Another instance rendering attribute used to position each quad instance in the scene\r\nin vec2 vs_UV; // Non-instanced, and presently unused in main(). Feel free to use it for your meshes.\r\nin vec4 vs_Transform0;\r\nin vec4 vs_Transform1;\r\nin vec4 vs_Transform2;\r\nin vec4 vs_Transform3;\r\n\r\n\r\nout vec4 fs_Nor;\r\nout vec4 fs_Col;\r\nout vec4 fs_Pos;\r\n\r\nvoid main()\r\n{\r\n    fs_Nor = vs_Nor;\r\n    mat4 transform = mat4(vs_Transform0, vs_Transform1, vs_Transform2, vs_Transform3);\r\n    //fs_Col = vs_Col;\r\n    fs_Pos = vs_Pos;\r\n\r\n    mat4 scale = mat4(1.0);\r\n    scale[0][0] = 0.4;\r\n    //scale[1][1] = 0.5;\r\n    scale[2][2] = 0.4;\r\n    \r\n\r\n    vec3 offset = vs_Translate;\r\n    offset.z = (sin((u_Time + offset.x) * 3.14159 * 0.1) + cos((u_Time + offset.y) * 3.14159 * 0.1)) * 1.5;\r\n\r\n    vec3 billboardPos = offset + vs_Pos.x * u_CameraAxes[0] + vs_Pos.y * u_CameraAxes[1];\r\n    fs_Col = vec4(vs_Transform0.xyz, 1.0);\r\n    gl_Position = u_ViewProj * vec4(billboardPos, 1.0);\r\n    gl_Position = u_ViewProj * transform * scale * vs_Pos;\r\n}\r\n"
+"use strict";
+/* unused harmony export CompatibilityOracle */
+/* unused harmony export Wavefunction */
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Model; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return ValidGrid; });
+const UP = [0, 1];
+const LEFT = [-1, 0];
+const DOWN = [0, -1];
+const RIGHT = [1, 0];
+var Dirs;
+(function (Dirs) {
+    Dirs[Dirs["UP"] = 0] = "UP";
+    Dirs[Dirs["LEFT"] = 1] = "LEFT";
+    Dirs[Dirs["DOWN"] = 2] = "DOWN";
+    Dirs[Dirs["RIGHT"] = 3] = "RIGHT";
+})(Dirs || (Dirs = {}));
+let direction = new Map();
+direction.set(Dirs.UP, [0, 1]);
+direction.set(Dirs.LEFT, [-1, 0]);
+direction.set(Dirs.DOWN, [0, -1]);
+direction.set(Dirs.RIGHT, [1, 0]);
+class CompatibilityOracle {
+    constructor(data) {
+        this.data = new Set();
+        for (let entry of data) {
+            this.data.add(String(entry[0]) + "," + String(entry[1]) + "," + String(entry[2]));
+        }
+    }
+    check(tile1, tile2, direction) {
+        //let test: [number, number, Dirs] = [tile1, tile2, direction];
+        return this.data.has(String(tile1) + "," + String(tile2) + "," + String(direction));
+    }
+}
+class Wavefunction {
+    static mk(size, weights) {
+        let tiles = new Set();
+        for (var item of Array.from(weights.keys())) {
+            tiles.add(item);
+        }
+        let coefficients = Wavefunction.init_coefficients(size, tiles);
+        return new Wavefunction(coefficients, weights);
+    }
+    static init_coefficients(size, tiles) {
+        let coefficients = [];
+        for (let x = 0; x < size[0]; x++) {
+            let row = [];
+            for (let y = 0; y < size[1]; y++) {
+                row.push(new Set(tiles));
+            }
+            coefficients.push(row);
+        }
+        return coefficients;
+    }
+    constructor(coefficients, weights) {
+        this.coefficients = coefficients;
+        this.weights = weights;
+    }
+    get(co_ords) {
+        return this.coefficients[co_ords[0]][co_ords[1]];
+    }
+    get_collapsed(co_ords) {
+        let opts = this.get(co_ords);
+        if (opts.size != 1) {
+            throw new Error("get_collapsed co_ord does not have a single tile");
+        }
+        else {
+            for (let tile of opts) {
+                return tile;
+            }
+        }
+    }
+    get_all_collapsed() {
+        let width = this.coefficients.length;
+        let height = this.coefficients[0].length;
+        let collapsed = [];
+        for (let x = 0; x < width; x++) {
+            let row = [];
+            for (let y = 0; y < height; y++) {
+                row.push(this.get_collapsed([x, y]));
+            }
+            collapsed.push(row);
+        }
+        return collapsed;
+    }
+    shannon_entropy(co_ord) {
+        let x = co_ord[0];
+        let y = co_ord[1];
+        let sum_of_weights = 0;
+        let sum_of_weight_log_weights = 0;
+        for (let opt of this.coefficients[x][y]) {
+            let weight = this.weights.get(opt);
+            sum_of_weights += weight;
+            sum_of_weight_log_weights += weight * Math.log(weight);
+        }
+        return Math.log(sum_of_weights) - (sum_of_weight_log_weights / sum_of_weights);
+    }
+    is_fully_collapsed() {
+        let width = this.coefficients.length;
+        let height = this.coefficients[0].length;
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                if (this.coefficients[x][y].size > 1) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    collapse(co_ords) {
+        let x = co_ords[0];
+        let y = co_ords[1];
+        let opts = this.coefficients[x][y];
+        let valid_weights = new Map();
+        for (let tile of opts.values()) {
+            valid_weights.set(tile, this.weights.get(tile));
+        }
+        let total_weights = 0;
+        for (let weight of valid_weights.values()) {
+            total_weights += weight;
+        }
+        let rnd = Math.random() * total_weights;
+        let chosen = null;
+        for (let tile of valid_weights.keys()) {
+            rnd -= valid_weights.get(tile);
+            if (rnd < 0) {
+                chosen = tile;
+                break;
+            }
+        }
+        this.coefficients[x][y] = new Set().add(chosen);
+    }
+    constrain(co_ords, forbidden_tile) {
+        let x = co_ords[0];
+        let y = co_ords[1];
+        this.coefficients[x][y].delete(forbidden_tile);
+    }
+}
+class Model {
+    constructor(output_size, weights, compatibility_oracle) {
+        this.output_size = output_size;
+        this.compatibility_oracle = compatibility_oracle;
+        this.wavefunction = Wavefunction.mk(output_size, weights);
+    }
+    run() {
+        while (!this.wavefunction.is_fully_collapsed()) {
+            this.iterate();
+        }
+        return this.wavefunction.get_all_collapsed();
+    }
+    iterate() {
+        let co_ords = this.min_entropy_co_ords();
+        this.wavefunction.collapse(co_ords);
+        this.propagate(co_ords);
+    }
+    propagate(co_ords) {
+        let stack = [co_ords];
+        while (stack.length > 0) {
+            let cur_coords = stack.pop();
+            let cur_possible_tiles = this.wavefunction.get(cur_coords);
+            for (let d of Model.valid_dirs(cur_coords, this.output_size)) {
+                let other_coords = [cur_coords[0] + direction.get(d)[0], cur_coords[1] + direction.get(d)[1]];
+                for (let other_tile of this.wavefunction.get(other_coords)) {
+                    let other_tile_is_possible = false;
+                    for (let cur_tile of cur_possible_tiles) {
+                        if (this.compatibility_oracle.check(cur_tile, other_tile, d)) {
+                            other_tile_is_possible = true;
+                            break;
+                        }
+                    }
+                    if (!other_tile_is_possible) {
+                        this.wavefunction.constrain(other_coords, other_tile);
+                        stack.push(other_coords);
+                    }
+                }
+            }
+        }
+    }
+    min_entropy_co_ords() {
+        let min_entropy = null;
+        let min_entropy_coords = null;
+        let width = this.output_size[0];
+        let height = this.output_size[1];
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                if (this.wavefunction.get([x, y]).size == 1) {
+                    continue;
+                }
+                let entropy = this.wavefunction.shannon_entropy([x, y]);
+                let entropy_plus_noise = entropy - (Math.random() / 1000);
+                if (min_entropy == null || entropy_plus_noise < min_entropy) {
+                    min_entropy = entropy_plus_noise;
+                    min_entropy_coords = [x, y];
+                }
+            }
+        }
+        return min_entropy_coords;
+    }
+    static valid_dirs(cur_co_ord, matrix_size) {
+        let x = cur_co_ord[0];
+        let y = cur_co_ord[1];
+        let width = matrix_size[0];
+        let height = matrix_size[1];
+        let dirs = [];
+        if (x > 0) {
+            dirs.push(Dirs.LEFT);
+        }
+        if (x < width - 1) {
+            dirs.push(Dirs.RIGHT);
+        }
+        if (y > 0) {
+            dirs.push(Dirs.DOWN);
+        }
+        if (y < height - 1) {
+            dirs.push(Dirs.UP);
+        }
+        return dirs;
+    }
+    static render(matrix) {
+        for (let row of matrix) {
+            let output = "";
+            for (let char of row) {
+                output = output + char;
+            }
+            console.log(output);
+        }
+    }
+    static parse_example_matrix(matrix) {
+        let compatibilities = new Set();
+        let matrix_width = matrix.length;
+        let matrix_height = matrix[0].length;
+        let weights = new Map();
+        for (let x = 0; x < matrix_width; x++) {
+            for (let y = 0; y < matrix_height; y++) {
+                if (!weights.has(matrix[x][y])) {
+                    weights.set(matrix[x][y], 1); // set the 1 to 0 if you want weight influce
+                }
+                //weights.set(matrix[x][y], weights.get(matrix[x][y]) + 1);  uncomment this if you want weight influence
+                for (let d of this.valid_dirs([x, y], [matrix_width, matrix_height])) {
+                    let other_tile = matrix[x + direction.get(d)[0]][y + direction.get(d)[1]];
+                    if (!compatibilities.has([matrix[x][y], other_tile, d])) {
+                        compatibilities.add([matrix[x][y], other_tile, d]);
+                    }
+                }
+            }
+        }
+        return [compatibilities, weights];
+    }
+    static test() {
+        // 1 is land
+        // 2 is coast 
+        // 3 is sea
+        let input_matrix_1 = [
+            [1, 1, 1, 1],
+            [1, 1, 1, 1],
+            [1, 1, 1, 2],
+            [1, 2, 2, 3],
+            [2, 3, 3, 3],
+            [3, 3, 3, 3],
+            [3, 3, 3, 3],
+        ];
+        let input_matrix_2 = [
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 0, 0, 0, 0, 0, 0, 3, 3],
+            [3, 3, 0, 1, 1, 1, 1, 0, 3, 3],
+            [3, 3, 0, 1, 1, 1, 1, 0, 3, 3],
+            [3, 3, 0, 1, 1, 1, 1, 0, 3, 3],
+            [3, 3, 0, 1, 1, 1, 1, 0, 3, 3],
+            [3, 3, 0, 0, 0, 0, 0, 0, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+        ];
+        let comp_and_weights = this.parse_example_matrix(input_matrix_1);
+        let compatibilities = comp_and_weights[0];
+        let weights = comp_and_weights[1];
+        let compatibility_oracle = new CompatibilityOracle(compatibilities);
+        let model = new Model([10, 50], weights, compatibility_oracle);
+        let output = model.run();
+        this.render(output);
+    }
+}
+class ValidGrid {
+    constructor(matrix_size, buildings) {
+        this.building_location = new Set();
+        let width = matrix_size[0];
+        let height = matrix_size[1];
+        let matrix = [];
+        // initializes grid based off matrix_size dimensions 
+        for (let x = 0; x < width; x++) {
+            let row = [];
+            for (let y = 0; y < height; y++) {
+                row.push(0);
+            }
+            matrix.push(row);
+        }
+        // create coordinates of builidings randomly
+        // places a total number of buildings specified
+        // by buildings, with no duplicate coords
+        // seen by the while loop 
+        let build_coords = new Set();
+        for (let i = 0; i < buildings; i++) {
+            let x = Math.floor(Math.random() * width);
+            let y = Math.floor(Math.random() * height);
+            while (build_coords.has(String(x) + "," + String(y))) {
+                x = Math.floor(Math.random() * width);
+                y = Math.floor(Math.random() * height);
+            }
+            build_coords.add(String(x) + "," + String(y));
+            this.building_location.add([x, y]);
+            matrix[x][y] = 2;
+        }
+        this.grid = matrix;
+    }
+    static render(matrix) {
+        for (let row of matrix) {
+            let output = "";
+            for (let char of row) {
+                output = output + char;
+            }
+            console.log(output);
+        }
+    }
+    create_paths() {
+        let someBuilding = null;
+        let otherBuildings = new Set();
+        let gotBuilding = false;
+        for (let building of this.building_location) {
+            if (!gotBuilding) {
+                someBuilding = building;
+                gotBuilding = true;
+            }
+            else {
+                otherBuildings.add(building);
+            }
+        }
+        if (someBuilding == null) {
+            throw new Error("No building given for someBuilding in create_paths()");
+        }
+        let width = this.grid.length;
+        let height = this.grid[0].length;
+        let gridCopy = this.grid;
+        function bfs_util(source, target, buildings) {
+            let visited = new Set();
+            for (let building of buildings) {
+                if (building[0] == target[0] && building[1] == building[1]) {
+                    continue;
+                }
+                visited.add(String(building[0]) + "," + String(building[1]));
+            }
+            let q = [];
+            visited.add(String(source[0]) + "," + String(source[1]));
+            let sourceSet = new Set();
+            sourceSet.add([source[0], source[1]]);
+            q.push([source[0], source[1], sourceSet]);
+            while (q.length != 0) {
+                let p = q.shift();
+                let x = p[0];
+                let y = p[1];
+                //console.log("current location is %d, %d", x, y);
+                if (x == target[0] && y == target[1]) {
+                    console.log("we found the point");
+                    return p[2];
+                }
+                for (let d of direction.values()) {
+                    let newX = x + d[0];
+                    let newY = y + d[1];
+                    if (newX < 0 || newX >= width || newY < 0 || newY >= height) {
+                        continue;
+                    }
+                    if (!visited.has(String(newX) + "," + String(newY))) {
+                        let copiedSet = new Set();
+                        for (let co_ord of p[2]) {
+                            copiedSet.add([co_ord[0], co_ord[1]]);
+                        }
+                        copiedSet.add([newX, newY]);
+                        visited.add(String(newX) + "," + String(newY));
+                        q.push([newX, newY, copiedSet]);
+                    }
+                }
+            }
+            return null;
+        }
+        /*
+        function dfs_util(co_ord: [number, number], target: [number, number], visited: Set<string>): Boolean {
+            let x: number = co_ord[0];
+            let y: number = co_ord[1];
+            
+            if (target[0] == x && target[1] == y) {
+                console.log("enter the true statment")
+                console.log("we get to %d, %d with a true", x, y)
+                return true
+            }
+
+            if (x < 0 || x >= width || y < 0 || y >= height || gridCopy[x][y] == 2)  {
+                return false
+            }
+            console.log("current x and y are %d, %d", x, y);
+            
+  
+            visited.add(String(x) + "," + String(y));
+            //console.log("we get to the for loop")
+            for (let d of direction.values()) {
+                let newX: number = x + d[0]
+                let newY: number = y + d[1];
+                if (!visited.has(String(newX) + "," + String(newY))) {
+                    if (dfs_util([newX, newY], target, visited)) {
+                        gridCopy[x][y] = 1;
+                        return true
+                    }
+                    
+                }
+            }
+
+            return false
+        }
+        */
+        console.log("the source building is %d, %d", someBuilding[0], someBuilding[1]);
+        for (let otherBuilding of otherBuildings) {
+            //console.log("/////////////////////////////////////////////")
+            console.log("other building coords are %d, %d", otherBuilding[0], otherBuilding[1]);
+            //dfs_util([someBuilding[0] + 1, someBuilding[1]], otherBuilding, new Set<string>());
+            let path = bfs_util([someBuilding[0] + 1, someBuilding[1]], otherBuilding, this.building_location);
+            if (path == null) {
+                console.log("path is null");
+            }
+            if (!(path == null)) {
+                //console.log("we have a path")
+                for (let p of path) {
+                    if (p[0] == otherBuilding[0] && p[1] == otherBuilding[1]) {
+                        continue;
+                    }
+                    this.grid[p[0]][p[1]] = 1;
+                }
+            }
+        }
+        //this.grid = gridCopy;
+    }
+    static test() {
+        let testGrid = new ValidGrid([10, 50], 4);
+        testGrid.create_paths();
+        ValidGrid.render(testGrid.grid);
+    }
+}
+
+
 
 /***/ }),
 /* 76 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec4 fs_Col;\r\nin vec4 fs_Pos;\r\nin vec4 fs_Nor;\r\nout vec4 out_Col;\r\n\r\nvoid main()\r\n{\r\n    \r\n    vec4 lightVec = vec4(10.0, -15.0, 0.0, 1.0);\r\n    float diffuseTerm = dot(normalize(fs_Nor), normalize(lightVec));\r\n    diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);\r\n    float ambientTerm = 0.6;\r\n    float lightIntensity = diffuseTerm + ambientTerm;\r\n    vec4 diffuseColor = fs_Col;\r\n    //out_Col = vec4(1.0, 1.0, 1.0, 1.0);\r\n    \r\n    out_Col = fs_Col;\r\n\r\n    out_Col = vec4(diffuseColor.rgb * lightIntensity, 1.0);\r\n\r\n    float t = dot(normalize(fs_Nor), normalize(vec4(lightVec)));\r\n\r\n    vec3 a = vec3(0.5f, 0.5f, 0.5f);\r\n    vec3 b = vec3(0.5f, 0.5f, 0.5f);\r\n    vec3 c = vec3(1.0f, 1.0f, 1.0f);\r\n    vec3 d = vec3(0.0f, 0.33f, 0.67f);\r\n    out_Col = vec4((a + b * cos(2.0 * 3.14f * (c * t + d))) * lightIntensity, 1.0);\r\n\r\n}\r\n"
+module.exports = "#version 300 es\r\n\r\nuniform mat4 u_ViewProj;\r\nuniform float u_Time;\r\n\r\nuniform mat3 u_CameraAxes; // Used for rendering particles as billboards (quads that are always looking at the camera)\r\n// gl_Position = center + vs_Pos.x * camRight + vs_Pos.y * camUp;\r\n\r\nin vec4 vs_Pos; // Non-instanced; each particle is the same quad drawn in a different place\r\nin vec4 vs_Nor; // Non-instanced, and presently unused\r\nin vec4 vs_Col; // An instanced rendering attribute; each particle instance has a different color\r\nin vec3 vs_Translate; // Another instance rendering attribute used to position each quad instance in the scene\r\nin vec2 vs_UV; // Non-instanced, and presently unused in main(). Feel free to use it for your meshes.\r\nin vec4 vs_Transform0;\r\nin vec4 vs_Transform1;\r\nin vec4 vs_Transform2;\r\nin vec4 vs_Transform3;\r\n\r\n\r\nout vec4 fs_Nor;\r\nout vec4 fs_Col;\r\nout vec4 fs_Pos;\r\n\r\nvoid main()\r\n{\r\n    fs_Nor = vs_Nor;\r\n    mat4 transform = mat4(vs_Transform0, vs_Transform1, vs_Transform2, vs_Transform3);\r\n    //fs_Col = vs_Col;\r\n    fs_Pos = vs_Pos;\r\n\r\n    mat4 scale = mat4(1.0);\r\n    scale[0][0] = 0.4;\r\n    //scale[1][1] = 0.5;\r\n    scale[2][2] = 0.4;\r\n    \r\n\r\n    vec3 offset = vs_Translate;\r\n    offset.z = (sin((u_Time + offset.x) * 3.14159 * 0.1) + cos((u_Time + offset.y) * 3.14159 * 0.1)) * 1.5;\r\n\r\n    vec3 billboardPos = offset + vs_Pos.x * u_CameraAxes[0] + vs_Pos.y * u_CameraAxes[1];\r\n    fs_Col = vec4(vs_Transform0.xyz, 1.0);\r\n    gl_Position = u_ViewProj * vec4(billboardPos, 1.0);\r\n    gl_Position = u_ViewProj * transform * scale * vs_Pos;\r\n}\r\n"
 
 /***/ }),
 /* 77 */
 /***/ (function(module, exports) {
 
-module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nin vec4 fs_Col;\r\nin vec4 fs_Pos;\r\nin vec4 fs_Nor;\r\nout vec4 out_Col;\r\n\r\nvoid main()\r\n{\r\n    \r\n    vec4 lightVec = vec4(10.0, -15.0, 0.0, 1.0);\r\n    float diffuseTerm = dot(normalize(fs_Nor), normalize(lightVec));\r\n    diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);\r\n    float ambientTerm = 0.6 ;\r\n    float lightIntensity = diffuseTerm + ambientTerm;\r\n    vec4 diffuseColor = fs_Col;\r\n    //out_Col = vec4(1.0, 1.0, 1.0, 1.0);\r\n    \r\n    out_Col = fs_Col;\r\n\r\n    out_Col = vec4(diffuseColor.rgb * lightIntensity, 1.0);\r\n\r\n    float t = dot(normalize(fs_Nor), normalize(vec4(lightVec)));\r\n\r\n    vec3 a = vec3(0.5f, 0.5f, 0.5f);\r\n    vec3 b = vec3(0.5f, 0.5f, 0.5f);\r\n    vec3 c = vec3(1.0f, 1.0f, 1.0f);\r\n    vec3 d = vec3(0.0f, 0.33f, 0.67f);\r\n    out_Col = vec4((a + b * cos(2.0 * 3.14f * (c * t + d))) * lightIntensity, 1.0);\r\n\r\n}\r\n"
 
 /***/ }),
 /* 78 */
+/***/ (function(module, exports) {
+
+module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\n// The vertex shader used to render the background of the scene\r\n\r\nin vec4 vs_Pos;\r\nout vec2 fs_Pos;\r\n\r\nvoid main() {\r\n  fs_Pos = vs_Pos.xy;\r\n  gl_Position = vs_Pos;\r\n}\r\n"
+
+/***/ }),
+/* 79 */
 /***/ (function(module, exports) {
 
 module.exports = "#version 300 es\r\nprecision highp float;\r\n\r\nuniform vec3 u_Eye, u_Ref, u_Up;\r\nuniform vec2 u_Dimensions;\r\nuniform float u_Time;\r\n\r\nin vec2 fs_Pos;\r\nout vec4 out_Col;\r\n\r\nfloat random (in vec2 st) {\r\n    return fract(sin(dot(st.xy,\r\n                         vec2(12.9898,78.233)))*\r\n        43758.5453123);\r\n}\r\n\r\nfloat random1( vec3 p , vec3 seed) {\r\n  return fract(sin(dot(p + seed, vec3(987.654, 123.456, 531.975))) * 85734.3545);\r\n}\r\n\r\nvec2 random2( vec2 p , vec2 seed) {\r\n  return fract(sin(vec2(dot(p + seed, vec2(311.7, 127.1)), dot(p + seed, vec2(269.5, 183.3)))) * 85734.3545);\r\n}\r\n\r\n\r\n\r\nfloat noise (vec2 st) {\r\n    vec2 i = floor(st);\r\n    vec2 f = fract(st);\r\n\r\n    // Four corners in 2D of a tile\r\n    float a = random(i);\r\n    float b = random(i + vec2(1.0, 0.0));\r\n    float c = random(i + vec2(0.0, 1.0));\r\n    float d = random(i + vec2(1.0, 1.0));\r\n\r\n    vec2 u = f * f * (3.0 - 2.0 * f);\r\n\r\n    return mix(a, b, u.x) +\r\n            (c - a)* u.y * (1.0 - u.x) +\r\n            (d - b) * u.x * u.y;\r\n}\r\n\r\nfloat fbm (vec2 st) {\r\n    // Initial values\r\n    float value = 0.0;\r\n    float amplitude = .5;\r\n    float frequency = 0.;\r\n    //\r\n    // Loop of octaves\r\n    for (int i = 0; i < 8; i++) {\r\n        value += amplitude * noise(st);\r\n        st *= 2.;\r\n        amplitude *= .5;\r\n    }\r\n    return value;\r\n}\r\n\r\nvec4 checker2D(vec2 texc, vec4 color0, vec4 color1)\r\n{\r\n  if ((int(floor(texc.x) + floor(texc.y)) & 1) == 0)\r\n    return color0;\r\n  else\r\n    return color1;\r\n}\r\n\r\nvec3 palette( in float t, in vec3 a, in vec3 b, in vec3 c, in vec3 d )\r\n{\r\n    return a + b*cos( 6.28318*(c*t+d) );\r\n}\r\n\r\n\r\nvoid main() {\r\n  vec2 pos = mod(gl_FragCoord.xy,vec2(100000));\r\n  vec3 red = vec3(1.0, 0.0, 0.0);\r\n  vec3 blue = vec3(66.0 / 255.0, 131.0 / 255.0, 244.0 / 255.0);\r\n  vec3 orange = vec3(252.0 / 255.0, 151.0 / 255.0, 27.0 / 255.0);\r\n  vec3 green = vec3(56.0 / 255.0, 188.0 / 255.0, 41.0 / 255.0);\r\n\r\n  vec4 color1;\r\n  vec4 color2;\r\n\r\n  //float fbm1 = fbm((pos.y + 1.0) / 2.0, (pos.x+ 1.0)/ 2.0)  + 0.24;\r\n  //float fbm2 = fbm((pos.x + 1.0) / 2.0, (pos.y+ 1.0)/ 2.0)  + 0.24;\r\n\r\n\r\n  //float fbm1 = fbm(mod(u_Time / 70.0, 100.0), mod(u_Time / 70.0, 100.0)) - 0.1;\r\n  //float fbm2 = fbm(mod(u_Time / 70.0, 100.0), mod(u_Time / 70.0, 100.0)) - 0.1;\r\n  \r\n  /*\r\n  if (fbm1 < 0.25) {\r\n    color1 = white;\r\n  } else if (fbm1 < 0.5) {\r\n    color1 = blue;\r\n  } else if (fbm1 < 0.75) {\r\n    color1 = orange;\r\n  } else {\r\n    color1 = green;\r\n  }\r\n\r\n  if (fbm1 < 0.25) {\r\n    color2 = green;\r\n  } else if (fbm2 < 0.5) {\r\n    color2 = orange;\r\n  } else if (fbm2 < 0.75) {\r\n    color2 = blue;\r\n  } else {\r\n    color2 = white;\r\n  }\r\n  */\r\n\r\n  \r\n  \r\n  //out_Col = checker2D(10.0 * fs_Pos, color1, color2);\r\n  //float fbm = fbm(fs_Pos);\r\n  //out_Col = fbm * vec4(1.0, 1.0, 1.0, 1.0);\r\n\r\n  vec2 st = fs_Pos;\r\n  st.x *= 400.0/1000.0;\r\n\r\n  vec3 color = vec3(0.0);\r\n  color += fbm(st*6.0);\r\n  //out_Col = vec4(color,1.0);\r\n\r\n\r\n  vec3 col = palette(sin(u_Time/ 70.0), red, blue, orange, green);\r\n\r\n\r\n  out_Col = vec4(fbm(st*6.0) * 0.5 * col, 1.0);\r\n\r\n}\r\n"
