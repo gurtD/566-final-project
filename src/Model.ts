@@ -40,36 +40,66 @@ class Wavefunction {
 
     coefficients: Set<number>[][];
     weights: Map<number, number>;
+    establishedPathCoords: Set<[number, number]>;
 
-    public static mk(size: [number, number], weights: Map<number, number>): Wavefunction {
+
+    public static mk(size: [number, number], weights: Map<number, number>, buildingCount: number, buildingTiles: Set<number>, roadTiles: Set<number>): Wavefunction {
         let tiles: Set<number> = new Set<number>();
         
         for(var item of Array.from(weights.keys())) {
             
-            tiles.add(item);
+            if (!buildingTiles.has(item) && !roadTiles.has(item)) {
+                tiles.add(item);
+            }
+                 
+            
         }
+
         
-        let coefficients: Set<number>[][] = Wavefunction.init_coefficients(size, tiles);
-        return new Wavefunction(coefficients, weights);
+
+        
+        
+        
+        let coefficientsAndPaths: [Set<number>[][], Set<[number, number]>] = Wavefunction.init_coefficients(size, tiles, buildingCount, buildingTiles, roadTiles);
+        return new Wavefunction(coefficientsAndPaths[0], coefficientsAndPaths[1], weights);
     }
 
-    public static init_coefficients(size: [number, number], tiles: Set<number>): Set<number>[][] {
+    public static init_coefficients(size: [number, number], tiles: Set<number>, buildingCount: number, buildingTiles: Set<number>, roadTiles: Set<number>): [Set<number>[][], Set<[number, number]>] {
         let coefficients: Set<number>[][] = [];
+        let validGrid: ValidGrid = new ValidGrid(size, buildingCount);
+        validGrid.create_paths();
+        ValidGrid.render(validGrid.grid); 
+
+        console.log("///////////////////////////////////////////////////")
+        let pathBuildingCoords = new Set<[number, number]>()
+        
 
         for (let x = 0; x < size[0]; x++) {
             let row: Set<number>[] = [];
             for (let y = 0; y < size[1]; y++) {
-                row.push(new Set(tiles));
+                if (validGrid.grid[x][y] == 2) {
+                    row.push(new Set(buildingTiles))
+                    pathBuildingCoords.add([x, y]);
+                } 
+                else if (validGrid.grid[x][y] == 1) {
+                    row.push(new Set(roadTiles))
+                    pathBuildingCoords.add([x, y]);
+                } 
+                else {
+                    row.push(new Set(tiles));
+                }
+                
             }
             coefficients.push(row);
         }
         
-        return coefficients;
+        return [coefficients, pathBuildingCoords];
     } 
 
-    constructor(coefficients: Set<number>[][], weights: Map<number, number>) {
+    constructor(coefficients: Set<number>[][], establishedPathCoords: Set<[number, number]>, weights: Map<number, number>) {
         this.coefficients = coefficients;
         this.weights = weights;
+        this.establishedPathCoords = establishedPathCoords
     }
 
     get(co_ords: [number, number]): Set<number> {
@@ -79,6 +109,7 @@ class Wavefunction {
     get_collapsed(co_ords: [number, number]): number {
         let opts: Set<number> = this.get(co_ords);
         if (opts.size != 1) {
+            console.log("size of tile is %d", opts.size);
             throw new Error("get_collapsed co_ord does not have a single tile");
         } 
         else {
@@ -141,6 +172,9 @@ class Wavefunction {
         let x: number = co_ords[0];
         let y: number = co_ords[1];
         let opts: Set<number> = this.coefficients[x][y];
+        if (opts.size == 1) {
+            return;
+        }
 
         let valid_weights: Map<number, number> = new Map<number, number>();
 
@@ -183,14 +217,19 @@ class Model {
     compatibility_oracle: CompatibilityOracle;
     wavefunction: Wavefunction;
 
-    constructor(output_size: [number, number], weights: Map<number, number>, compatibility_oracle: CompatibilityOracle) {
+    constructor(output_size: [number, number], weights: Map<number, number>, compatibility_oracle: CompatibilityOracle, buildingTiles: Set<number>, roadTiles: Set<number> ) {
         this.output_size = output_size;
         this.compatibility_oracle = compatibility_oracle;
-        this.wavefunction = Wavefunction.mk(output_size, weights);
+        this.wavefunction = Wavefunction.mk(output_size, weights, 4, buildingTiles, roadTiles);
         
     }
 
     run(): number[][] {
+        for (let coords of this.wavefunction.establishedPathCoords) {
+            this.propagate(coords)
+        }
+
+
         while (!this.wavefunction.is_fully_collapsed()) {
             this.iterate();
         }
@@ -301,9 +340,9 @@ class Model {
         for (let x = 0; x < matrix_width; x++) {
             for (let y = 0; y < matrix_height; y++) {
                 if (!weights.has(matrix[x][y])) {
-                    weights.set(matrix[x][y], 0);
+                    weights.set(matrix[x][y], 0); // set the 1 to 0 if you want weight influce
                 }
-                weights.set(matrix[x][y], weights.get(matrix[x][y]) + 1);
+                weights.set(matrix[x][y], weights.get(matrix[x][y]) + 1);  //uncomment this if you want weight influence
 
                 for (let d of this.valid_dirs([x, y], [matrix_width, matrix_height])) {
                     let other_tile: number = matrix[x + direction.get(d)[0]][y + direction.get(d)[1]];
@@ -322,7 +361,7 @@ class Model {
         // 1 is land
         // 2 is coast 
         // 3 is sea
-        let input_matrix: number[][] = [
+        let input_matrix_1: number[][] = [
             [1, 1, 1, 1],
             [1, 1, 1, 1],
             [1, 1, 1, 2],
@@ -331,18 +370,73 @@ class Model {
             [3, 3, 3, 3],
             [3, 3, 3, 3],
         ]
-        
 
-        let comp_and_weights: [Set<[number, number, Dirs]>, Map<number, number>] = this.parse_example_matrix(input_matrix);
+        let input_matrix_2: number[][] = [
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 0, 0, 0, 0, 0, 0, 3, 3],
+            [3, 3, 0, 1, 1, 1, 1, 0, 3, 3],
+            [3, 3, 0, 1, 1, 1, 1, 0, 3, 3],
+            [3, 3, 0, 1, 1, 1, 1, 0, 3, 3],
+            [3, 3, 0, 1, 1, 1, 1, 0, 3, 3],
+            [3, 3, 0, 0, 0, 0, 0, 0, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+        ]
+        
+        let input_matrix_3: number[][] = [
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 2, 0, 1, 1, 1, 0],
+            [0, 1, 0, 1, 2, 1, 0],
+            [0, 1, 1, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 3, 3, 0, 0, 0, 0],
+            [3, 4, 4, 3, 3, 3, 3],
+            [4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4]
+        ]
+
+        let comp_and_weights: [Set<[number, number, Dirs]>, Map<number, number>] = this.parse_example_matrix(input_matrix_3);
         let compatibilities: Set<[number, number, Dirs]> = comp_and_weights[0];
         
         let weights: Map<number, number> = comp_and_weights[1];
+        
+        let buildingTiles: Set<number> = new Set<number>();
+        buildingTiles.add(2);
+    
+        let roadTiles: Set<number> = new Set<number>();
+        roadTiles.add(1);
+        
+        /*
+        for(var item of Array.from(weights.keys())) {
+            
+            buildingTiles.add(item); 
+            roadTiles.add(item)
+        }
+        */
+        
         let compatibility_oracle: CompatibilityOracle = new CompatibilityOracle(compatibilities);
-        let model: Model = new Model([10, 50], weights, compatibility_oracle);
-        let output: number[][] = model.run();
-        this.render(output);
+        while(true) {
+            try {
+                let model: Model = new Model([10, 50], weights, compatibility_oracle, buildingTiles, roadTiles);
+                let output: number[][] = model.run();
+                this.render(output);
+                break;
+            }
+            catch (e) {
+                continue;
+            }
+        }
+        
     }
 }
+
+
+
+
+
 
 class ValidGrid {
     grid: number[][]
@@ -407,7 +501,7 @@ class ValidGrid {
         let otherBuildings: Set<[number, number]> = new Set<[number, number]>();
         let gotBuilding: boolean = false;
         for (let building of this.building_location) {
-            if (!gotBuilding) {
+            if (!gotBuilding && building[0] != 9) {
                 someBuilding = building;
                 gotBuilding = true
             } else {
@@ -538,7 +632,7 @@ class ValidGrid {
 
     
     public static test() {
-        let testGrid: ValidGrid = new ValidGrid([10, 10], 4);
+        let testGrid: ValidGrid = new ValidGrid([10, 50], 4);
         testGrid.create_paths();
         ValidGrid.render(testGrid.grid); 
     }

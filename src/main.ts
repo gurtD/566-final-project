@@ -202,8 +202,8 @@ function main() {
   console.log("Starting model test");
   Model.test();
 
-  console.log("testings valid grid initialization");
-  ValidGrid.test();
+  //console.log("testings valid grid initialization");
+  //ValidGrid.test();
   console.log("concluding model test");
   
   // Initial display for framerate
