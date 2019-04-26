@@ -1,6 +1,7 @@
 import {vec3, vec4, mat4, mat3} from 'gl-matrix';
 import Drawable from './Drawable';
 import {gl} from '../../globals';
+import Texture from './Texture';
 
 var activeProgram: WebGLProgram = null;
 
@@ -40,6 +41,10 @@ class ShaderProgram {
   unifEye: WebGLUniformLocation;
   unifUp: WebGLUniformLocation;
   unifDimensions: WebGLUniformLocation;
+  unifSampler1: WebGLUniformLocation;
+  unifSampler2: WebGLUniformLocation;
+  unifSampler3: WebGLUniformLocation;
+
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -69,6 +74,17 @@ class ShaderProgram {
     this.unifEye   = gl.getUniformLocation(this.prog, "u_Eye");
     this.unifRef   = gl.getUniformLocation(this.prog, "u_Ref");
     this.unifUp   = gl.getUniformLocation(this.prog, "u_Up");
+    this.unifSampler1   = gl.getUniformLocation(this.prog, "u_NoiseTex1");
+    this.unifSampler2   = gl.getUniformLocation(this.prog, "u_NoiseTex2");
+    this.unifSampler3   = gl.getUniformLocation(this.prog, "u_FlameTex");
+  }
+
+  // Bind the given Texture to the given texture unit
+  bindTexToUnit(handleName: WebGLUniformLocation, tex: Texture, unit: number) {
+    this.use();
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    tex.bindTex();
+    gl.uniform1i(handleName, unit);
   }
 
   use() {

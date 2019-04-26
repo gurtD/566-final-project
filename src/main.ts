@@ -11,13 +11,14 @@ import Mesh from './geometry/Mesh';
 import {readTextFile} from './globals';
 import LSystem from './LSystem'
 import {CompatibilityOracle, Wavefunction, Model, ValidGrid} from './Model'
+import Texture from './rendering/gl/Texture';
 
 // Define an object with application parameters and button callbacks
 // This will be referred to by dat.GUI's functions that add GUI elements.
 const controls = {
 };
 
-let square: Square;
+let square: Mesh;
 let screenQuad: ScreenQuad;
 let time: number = 0.0;
 let cylinder: Mesh;
@@ -25,7 +26,11 @@ let wahoo: Mesh;
 
 let obj0: string = readTextFile('./src/cylinder.obj');
 let obj1: string = readTextFile('./src/wahoo.obj');
-let lSystem: LSystem;
+let obj2: string = readTextFile('./src/square.obj');
+
+let noiseTex1: Texture;
+let noiseTex2: Texture;
+let flameSource: Texture;
 
 
 class Parameters {
@@ -44,7 +49,7 @@ let parameters = new Parameters(1.0, 1.0);
 
 
 function loadScene() {
-  square = new Square();
+  square = new Mesh(obj2, vec3.fromValues(0.0, 0.0, 0.0));;
   square.create();
   screenQuad = new ScreenQuad();
   screenQuad.create();
@@ -55,8 +60,12 @@ function loadScene() {
   wahoo = new Mesh(obj1, vec3.fromValues(0.0, -10.0, 0.0));
   wahoo.create();
 
+  noiseTex1 = new Texture('../resources/pokemonEmeraldTileset.png', 0) /// this is the texture that instanced is using
+  noiseTex2 = new Texture('../resources/fbmRep2.png', 0)
+  flameSource = new Texture('../resources/minecraft_textures_all.png', 1)
 
 
+  /*
   lSystem = new LSystem("X", parameters.angle);
    
   let array: mat4[] = lSystem.drawMatrices("TSFAAXFAAXFAAXFA" + lSystem.expand(parameters.iterations));
@@ -110,29 +119,54 @@ function loadScene() {
   cylinder.setNumInstances(array.length);
  
   
+  */
 
 
+  // testing wfc
+  console.log("Starting model test");
+  let grid: number[][] = Model.test();
 
+  let array: mat4[] = []
 
+  let rowMove: number = 2.0 / grid.length;
+  let rowStart: number = 1.0 - rowMove / 2.0;
+  let rowScale: number = 1.0 / grid.length;
+  let colMove: number = 2.0 / grid[0].length;
+  let colStart: number = -1.0 + colMove / 2.0;
+  let colScale: number = 1.0 / grid[0].length;
 
+  let currentRow: number = rowStart;
 
-  lSystem = new LSystem("TTTTSSF", 1.0);
-  //lSystem = new LSystem("ABC");
-  //console.log(lSystem.expand(3));
+  for (let row = 0; row < grid.length; row++) {
+    let currentCol: number = colStart;
+    for (let col = 0; col < grid[0].length; col++) {
+      //console.log('fuck');
+      let info: mat4 = mat4.create();
+      info = mat4.fromValues(currentCol, grid[row][col], 1, 1, currentRow, 1, 1, 1, colScale, 1, 1, 1, rowScale, 1, 1, 1);
+
+      array.push(info)
+      currentCol += colMove;
+    }
+    currentRow -= rowMove
+  }
+
+  //console.log("testings valid grid initialization");
+  //ValidGrid.test();
+  console.log("concluding model test");
+
+  let matrix: mat4 = mat4.create();
+  mat4.scale(matrix, matrix, vec3.fromValues(0.5, 0.5, 1.0));
+  //matrix = mat4.fromValues(-0.5, 1, 1, 1, 0.5, 1, 1, 1, 0.5, 1, 1, 1, 0.5, 1, 1, 1)
+  matrix = mat4.fromValues(0.5, 1, 1, 1, 0.5, 1, 1, 1, 0.5, 1, 1, 1, 0.5, 1, 1, 1)
   
-  let arrayWahoo: mat4[] = lSystem.drawMatrices(lSystem.expand(0));
-  console.log(array.length)
-  console.log(array[0]);
-  console.log(array[1]);
-  console.log(array[2]);
-  console.log(array[3]);
+  //array = [matrix]
 
-  let transformArray0Wahoo = [];
-  let transformArray1Wahoo = [];
-  let transformArray2Wahoo = [];
-  let transformArray3Wahoo = [];
+  let transformArray0 = [];
+  let transformArray1 = [];
+  let transformArray2 = [];
+  let transformArray3 = [];
 
-  for (let mat of arrayWahoo) {
+  for (let mat of array) {
     console.log(mat);
     for (let i = 0; i <  4;  i++) {
       let colVec = vec4.fromValues(0.0, 0.0, 0.0, 0.0);
@@ -141,19 +175,19 @@ function loadScene() {
         colVec[j] = mat[idx];
         //for (let x = 0; x < 4; x++) {
           if (i == 0) {
-            transformArray0Wahoo.push(colVec[j]);
+            transformArray0.push(colVec[j]);
           }
   
           if (i == 1) {
-            transformArray1Wahoo.push(colVec[j]);
+            transformArray1.push(colVec[j]);
           }
   
           if (i == 2) {
-            transformArray2Wahoo.push(colVec[j]);
+            transformArray2.push(colVec[j]);
           }
   
           if (i == 3) {
-            transformArray3Wahoo.push(colVec[j]);
+            transformArray3.push(colVec[j]);
           }
         //}
       }
@@ -162,15 +196,15 @@ function loadScene() {
     }
   }
 
-  let transforms0Wahoo: Float32Array = new Float32Array(transformArray0Wahoo);
-  let transforms1Wahoo: Float32Array = new Float32Array(transformArray1Wahoo);
-  let transforms2Wahoo: Float32Array = new Float32Array(transformArray2Wahoo);
-  let transforms3Wahoo: Float32Array = new Float32Array(transformArray3Wahoo);
+  let transforms0: Float32Array = new Float32Array(transformArray0);
+  let transforms1: Float32Array = new Float32Array(transformArray1);
+  let transforms2: Float32Array = new Float32Array(transformArray2);
+  let transforms3: Float32Array =  new Float32Array(transformArray3);
 
-  wahoo.setInstanceVBOs(transforms0Wahoo, transforms1Wahoo, transforms2Wahoo, transforms3Wahoo);
-  wahoo.setNumInstances(arrayWahoo.length);
+  square.setInstanceVBOs(transforms0, transforms1, transforms2, transforms3);
+  square.setNumInstances(array.length);
  
-
+  /*
   // Set up instanced rendering data arrays here.
   // This example creates a set of positional
   // offsets and gradiated colors for a 100x100 grid
@@ -195,16 +229,11 @@ function loadScene() {
   let colors: Float32Array = new Float32Array(colorsArray);
   square.setInstanceVBOs(offsets, colors);
   square.setNumInstances(n * n); // grid of "particles"
+
+*/
 }
 
 function main() {
-  // testing wfc
-  console.log("Starting model test");
-  Model.test();
-
-  //console.log("testings valid grid initialization");
-  //ValidGrid.test();
-  console.log("concluding model test");
   
   // Initial display for framerate
   const stats = Stats();
@@ -262,6 +291,11 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/flat-frag.glsl')),
   ]);
 
+  instancedShader.bindTexToUnit(flat.unifSampler1, noiseTex1, 0);
+  instancedShader.bindTexToUnit(flat.unifSampler2, noiseTex2, 1);
+  instancedShader.bindTexToUnit(flat.unifSampler3, flameSource, 2);
+
+
   // This function will be called every frame
   function tick() {
     camera.update();
@@ -271,11 +305,11 @@ function main() {
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
     renderer.render(camera, flat, [screenQuad]);
-    renderer.render(camera, instancedShader, [cylinder]);
-    renderer.render(camera, instancedShader, [wahoo]);
-    //renderer.render(camera, instancedShader, [
-      //square,
-    //]);
+    //renderer.render(camera, instancedShader, [cylinder]);
+    //renderer.render(camera, instancedShader, [wahoo]);
+    renderer.render(camera, instancedShader, [
+      square,
+    ]);
     stats.end();
 
     // Tell the browser to call `tick` again whenever it renders a new frame

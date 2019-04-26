@@ -340,9 +340,9 @@ class Model {
         for (let x = 0; x < matrix_width; x++) {
             for (let y = 0; y < matrix_height; y++) {
                 if (!weights.has(matrix[x][y])) {
-                    weights.set(matrix[x][y], 0); // set the 1 to 0 if you want weight influce
+                    weights.set(matrix[x][y], 1); // set the 1 to 0 if you want weight influce
                 }
-                weights.set(matrix[x][y], weights.get(matrix[x][y]) + 1);  //uncomment this if you want weight influence
+                //weights.set(matrix[x][y], weights.get(matrix[x][y]) + 1);  //uncomment this if you want weight influence
 
                 for (let d of this.valid_dirs([x, y], [matrix_width, matrix_height])) {
                     let other_tile: number = matrix[x + direction.get(d)[0]][y + direction.get(d)[1]];
@@ -357,7 +357,7 @@ class Model {
         return [compatibilities, weights];
     }
 
-    public static test() {
+    public static test(): number[][] {
         // 1 is land
         // 2 is coast 
         // 3 is sea
@@ -385,17 +385,17 @@ class Model {
         ]
         
         let input_matrix_3: number[][] = [
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 2, 0, 1, 1, 1, 0],
-            [0, 1, 0, 1, 2, 1, 0],
-            [0, 1, 1, 1, 1, 1, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 3, 3, 0, 0, 0, 0],
-            [3, 4, 4, 3, 3, 3, 3],
-            [4, 4, 4, 4, 4, 4, 4],
-            [4, 4, 4, 4, 4, 4, 4],
-            [4, 4, 4, 4, 4, 4, 4],
-            [4, 4, 4, 4, 4, 4, 4]
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 2, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+            [0, 1, 0, 1, 2, 1, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [6, 3, 3, 7, 0, 6, 3, 3, 10, 10, 3],
+            [5, 9, 9, 8, 3, 5, 9, 9, 9, 9, 9],
+            [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+            [4, 4, 9, 9, 4, 9, 9, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
         ]
 
         let comp_and_weights: [Set<[number, number, Dirs]>, Map<number, number>] = this.parse_example_matrix(input_matrix_3);
@@ -420,15 +420,16 @@ class Model {
         let compatibility_oracle: CompatibilityOracle = new CompatibilityOracle(compatibilities);
         while(true) {
             try {
-                let model: Model = new Model([10, 50], weights, compatibility_oracle, buildingTiles, roadTiles);
+                let model: Model = new Model([25, 40], weights, compatibility_oracle, buildingTiles, roadTiles);
                 let output: number[][] = model.run();
                 this.render(output);
-                break;
+                return output;
             }
             catch (e) {
                 continue;
             }
         }
+
         
     }
 }
@@ -467,17 +468,37 @@ class ValidGrid {
         // seen by the while loop 
 
         let build_coords: Set<string> = new Set<string>();
+        let build_space: Set<string> = new Set<string>();
 
         for (let i = 0; i < buildings; i++) {
             let x: number = Math.floor(Math.random() * width);
             let y: number = Math.floor(Math.random() * height);
 
-            while (build_coords.has(String(x) + "," + String(y))) {
+            function isValidLocation(x: number, y: number) {
+                for (let testX = x; testX > x - 4; testX--) {
+                    for (let testY = y - 1; testY < y + 3; testY++) {
+                        if (build_space.has(String(testX) + "," + String(testY))) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            //while (build_coords.has(String(x) + "," + String(y))) {
+            while(!isValidLocation(x, y)) {
                 x = Math.floor(Math.random() * width);
                 y = Math.floor(Math.random() * height);
             }
 
             build_coords.add(String(x) + "," + String(y));
+
+            for (let testX = x; testX > x - 4; testX--) {
+                for (let testY = y - 1; testY < y + 3; testY++) {
+                    build_space.add(String(testX) + "," + String(testY))  
+                }
+            }
+            build_space.add(String(x) + "," + String(y));
             this.building_location.add([x, y]);
             matrix[x][y] = 2;
         }
@@ -501,7 +522,7 @@ class ValidGrid {
         let otherBuildings: Set<[number, number]> = new Set<[number, number]>();
         let gotBuilding: boolean = false;
         for (let building of this.building_location) {
-            if (!gotBuilding && building[0] != 9) {
+            if (!gotBuilding && building[0] != this.grid.length) {
                 someBuilding = building;
                 gotBuilding = true
             } else {
