@@ -87,7 +87,7 @@ class Mesh extends Drawable {
     console.log(`Created Mesh from OBJ`);
     this.objString = ""; // hacky clear
 
-    console.log(this.positions);
+    //console.log(this.positions);
   }
 
   setInstanceVBOs(zero: Float32Array, one:  Float32Array, two: Float32Array, three: Float32Array) {
@@ -95,10 +95,10 @@ class Mesh extends Drawable {
     this.transforms1 = one;
     this.transforms2 = two;
     this.transforms3 = three;
-    console.log(this.transforms0);
-    console.log(this.transforms1);
-    console.log(this.transforms2);
-    console.log(this.transforms3);
+    //console.log(this.transforms0);
+    //console.log(this.transforms1);
+    //console.log(this.transforms2);
+    //console.log(this.transforms3);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransformation0);
     gl.bufferData(gl.ARRAY_BUFFER, this.transforms0, gl.STATIC_DRAW);
     

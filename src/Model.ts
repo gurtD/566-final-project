@@ -48,7 +48,7 @@ class Wavefunction {
         
         for(var item of Array.from(weights.keys())) {
             
-            if (!buildingTiles.has(item) && !roadTiles.has(item)) {
+            if (!buildingTiles.has(item) && !roadTiles.has(item) && !(item >= 11 && item <= 58) ) {
                 tiles.add(item);
             }
                  
@@ -72,6 +72,7 @@ class Wavefunction {
 
         console.log("///////////////////////////////////////////////////")
         let pathBuildingCoords = new Set<[number, number]>()
+        let buildingCoords = new Set<[number, number]>()
         
 
         for (let x = 0; x < size[0]; x++) {
@@ -79,7 +80,8 @@ class Wavefunction {
             for (let y = 0; y < size[1]; y++) {
                 if (validGrid.grid[x][y] == 2) {
                     row.push(new Set(buildingTiles))
-                    pathBuildingCoords.add([x, y]);
+                    //pathBuildingCoords.add([x, y]);
+                    buildingCoords.add([x, y]);
                 } 
                 else if (validGrid.grid[x][y] == 1) {
                     row.push(new Set(roadTiles))
@@ -92,6 +94,37 @@ class Wavefunction {
             }
             coefficients.push(row);
         }
+        let pokemart: boolean = false;
+        let pokecenter: boolean  = false;
+        
+        for (let coord of buildingCoords) {
+            let tile: number = 11;
+            if (!pokemart) {
+                tile = 11
+                pokemart = true
+            }
+            else if (!pokecenter) {
+                tile = 27
+                pokecenter = true
+            } 
+            else {
+                tile = 43
+            }
+             
+                for (let testX = coord[0]; testX > coord[0] - 4; testX--) {
+                    for (let testY = coord[1] - 1; testY < coord[1] + 3; testY++) {
+                        if (testX >= 0 && testX < coefficients.length && testY >= 0 && testY < coefficients[0].length) {
+                            pathBuildingCoords.add([testX, testY]);
+                            let tileSet = new Set<number>();
+                            tileSet.add(tile);
+                            coefficients[testX][testY] = tileSet;
+                        }
+                        tile += 1
+                    }
+                }
+        }
+
+        
         
         return [coefficients, pathBuildingCoords];
     } 
@@ -340,9 +373,9 @@ class Model {
         for (let x = 0; x < matrix_width; x++) {
             for (let y = 0; y < matrix_height; y++) {
                 if (!weights.has(matrix[x][y])) {
-                    weights.set(matrix[x][y], 1); // set the 1 to 0 if you want weight influce
+                    weights.set(matrix[x][y], 0); // set the 1 to 0 if you want weight influce
                 }
-                //weights.set(matrix[x][y], weights.get(matrix[x][y]) + 1);  //uncomment this if you want weight influence
+                weights.set(matrix[x][y], weights.get(matrix[x][y]) + 1);  //uncomment this if you want weight influence
 
                 for (let d of this.valid_dirs([x, y], [matrix_width, matrix_height])) {
                     let other_tile: number = matrix[x + direction.get(d)[0]][y + direction.get(d)[1]];
@@ -384,10 +417,37 @@ class Model {
             [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
         ]
         
-        let input_matrix_3: number[][] = [
+        let input_matrix_3: number[][] = [ 
+            [ 9,  9,  9,  9,  9,  9,  9,  9,  9,  9,   9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9, 9,   9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9],
+            [ 9,  9,  9,  9,  9, 61, 63, 63, 63, 62,   9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9, 9,   9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9],
+            [ 9,  9,  9,  9,  9, 59,  0,  0,  0, 60,   9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9, 9,   9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9],
+            [ 9,  9,  9,  9,  9, 59,  0,  0,  0, 60,   9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9, 9,   9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9],
+            [ 9, 61, 63, 63, 63, 63,  0,  0,  0, 63,  63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63],
+            [ 9, 59,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+            [ 9, 59,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+            [ 9, 59,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+            [ 9, 59,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+            [ 9, 59,  0,  0, 23, 24, 25, 26,  0,  1,   1,  1,  1,  1,  1,  0,  0, 39, 40, 41, 42,  0,  1,  1,  1,  1,  1,  1,  0, 55, 56, 57, 58,  0,  1,  1,  1,  1,  1,  1,  0],
+            [ 9, 59,  0,  0, 19, 20, 21, 22,  0,  1,  23, 24, 25, 26,  1,  0,  0, 35, 36, 37, 38,  0,  1, 39, 40, 41, 42,  1,  0, 51, 52, 53, 54,  0,  1, 55, 56, 57, 58,  1,  0],
+            [ 9, 59,  0,  0, 15, 16, 17, 18,  0,  1,  19, 20, 21, 22,  1,  0,  0, 31, 32, 33, 34,  0,  1, 35, 36, 37, 38,  1,  0, 47, 48, 49, 50,  0,  1, 51, 52, 53, 54,  1,  0],
+            [ 9, 59,  0,  0, 11, 12, 13, 14,  0,  1,  15, 16, 17, 18,  1,  0,  0, 27, 28, 29, 30,  0,  1, 31, 32, 33, 34,  1,  0, 43, 44, 45, 46,  0,  1, 47, 48, 49, 50,  1,  0],
+            [ 9, 59,  0,  0,  0,  1,  0,  0,  0,  1,  11, 12, 13, 14,  1,  0,  0,  0,  1,  0,  0,  0,  1, 27, 28, 29, 30,  1,  0,  0,  1,  0,  0,  0,  1, 43, 44, 45, 46,  1,  0],
+            [ 9, 59,  0,  0,  0,  1,  1,  1,  1,  1,   1,  1,  1,  1,  1,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0,  0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0],
+            [ 9, 59,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+            [ 9, 59,  0,  0,  0,  0,  0,  0,  0,  0,   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+            [ 9, 59,  0,  6,  3,  3,  7,  0,  6,  3,   3, 10, 10,  3,  7,  0,  0,  6,  3,  7,  0,  6,  3,  3, 10, 10,  3,  3,  3,  3,  3,  7,  0,  6,  3,  3, 10, 10,  3,  3,  3],
+            [ 9,  8,  3,  5,  9,  9,  8,  3,  5,  9,   9,  9,  9,  9, 59,  0,  0, 60,  9,  8,  3,  5,  9,  9,  9,  9,  9,  9,  9,  9,  9,  8,  3,  5,  9,  9,  9,  9,  9,  9,  9],
+            [ 9,  9,  9,  9,  9,  9,  9,  9,  9,  9,   9,  9,  9,  9, 59,  0,  0, 60,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9,  9],
+            [ 4,  4,  4,  4,  4,  9,  9,  4,  9,  9,   4,  4,  4,  4, 59,  0,  0, 60,  9,  9,  4,  9,  9,  4,  4,  4,  4,  4,  4,  4,  9,  9,  4,  9,  9,  4,  4,  4,  4,  4,  4],
+            [ 4,  4,  4,  4,  4,  4,  4,  4,  4,  4,   4,  4,  4,  4,  8,  3,  3,  5,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4],
+            [ 4,  4,  4,  4,  4,  4,  4,  4,  4,  4,   4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4]
+        ] 
+
+          
+          let input_matrix_4: number[][] = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 2, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-            [0, 1, 0, 1, 2, 1, 0, 0, 0, 0, 0],
+            [0, 12, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+            [0, 1, 0, 1, 12, 1, 0, 0, 0, 0, 0],
             [0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [6, 3, 3, 7, 0, 6, 3, 3, 10, 10, 3],
@@ -398,13 +458,14 @@ class Model {
             [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
         ]
 
+
         let comp_and_weights: [Set<[number, number, Dirs]>, Map<number, number>] = this.parse_example_matrix(input_matrix_3);
         let compatibilities: Set<[number, number, Dirs]> = comp_and_weights[0];
         
         let weights: Map<number, number> = comp_and_weights[1];
         
         let buildingTiles: Set<number> = new Set<number>();
-        buildingTiles.add(2);
+        buildingTiles.add(12);
     
         let roadTiles: Set<number> = new Set<number>();
         roadTiles.add(1);
@@ -426,6 +487,7 @@ class Model {
                 return output;
             }
             catch (e) {
+                console.log(e)
                 continue;
             }
         }
@@ -442,9 +504,11 @@ class Model {
 class ValidGrid {
     grid: number[][]
     building_location: Set<[number, number]>
+    building_space: Set<[number, number]>
 
     constructor(matrix_size: [number, number], buildings: number) {
         this.building_location = new Set<[number, number]>();
+        this.building_space = new Set<[number, number]>();
         let width: number = matrix_size[0];
         let height: number = matrix_size[1];
 
@@ -485,7 +549,7 @@ class ValidGrid {
                 return true;
             }
 
-            //while (build_coords.has(String(x) + "," + String(y))) {
+            // while (build_coords.has(String(x) + "," + String(y))) {
             while(!isValidLocation(x, y)) {
                 x = Math.floor(Math.random() * width);
                 y = Math.floor(Math.random() * height);
@@ -495,14 +559,16 @@ class ValidGrid {
 
             for (let testX = x; testX > x - 4; testX--) {
                 for (let testY = y - 1; testY < y + 3; testY++) {
-                    build_space.add(String(testX) + "," + String(testY))  
+                    build_space.add(String(testX) + "," + String(testY))
+                    this.building_space.add([testX, testY])  
                 }
             }
             build_space.add(String(x) + "," + String(y));
             this.building_location.add([x, y]);
             matrix[x][y] = 2;
         }
- 
+        console.log("heres the building space");
+        console.log(this.building_space)
         this.grid = matrix
     }
 
@@ -536,16 +602,31 @@ class ValidGrid {
         let width: number = this.grid.length;
         let height: number = this.grid[0].length;
 
-        let gridCopy: number[][] = this.grid;
+        let gridCopy: number[][] = this.grid; 
+        let building_space_copy: Set<[number, number]> = this.building_space;
 
         function bfs_util(source: [number, number] , target: [number, number], buildings: Set<[number, number]>): Set<[number, number]> {
             let visited: Set<string> = new Set<string>()
             for (let building of buildings) {
-                if (building[0] == target[0] && building[1] == building[1]) {
+                if (building[0] == target[0] && building[1] == target[1]) {
                     continue
                 }
                 visited.add(String(building[0]) + "," + String(building[1]));
             }
+            
+            try {
+                for (let space of building_space_copy) {
+                    if (space[0] == target[0] && space[1] == target[1]) {
+                        continue
+                    }
+                    visited.add(String(space[0]) + "," + String(space[1]));
+                }
+            }
+            catch(e) {
+                console.log("build space is breaking shit");
+                console.log(e);
+            }
+           
 
             let q: Array<[number, number, Set<[number, number]>]> = [];
             visited.add(String(source[0]) + "," + String(source[1]));
@@ -561,7 +642,7 @@ class ValidGrid {
                 //console.log("current location is %d, %d", x, y);
 
                 if (x == target[0] && y == target[1]) { 
-                    console.log("we found the point")
+                    //console.log("we found the point")
                     return p[2]
                 }
 
@@ -623,10 +704,10 @@ class ValidGrid {
             return false
         }
         */
-        console.log("the source building is %d, %d", someBuilding[0], someBuilding[1])
+        //console.log("the source building is %d, %d", someBuilding[0], someBuilding[1])
         for (let otherBuilding of otherBuildings) {
             //console.log("/////////////////////////////////////////////")
-            console.log("other building coords are %d, %d", otherBuilding[0], otherBuilding[1]);
+            //console.log("other building coords are %d, %d", otherBuilding[0], otherBuilding[1]);
             //dfs_util([someBuilding[0] + 1, someBuilding[1]], otherBuilding, new Set<string>());
             let path: Set<[number, number]> = bfs_util([someBuilding[0] + 1, someBuilding[1]] , otherBuilding, this.building_location);
             if (path == null) {

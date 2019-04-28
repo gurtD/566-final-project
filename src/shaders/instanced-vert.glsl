@@ -58,7 +58,11 @@ void main()
     
     vec4 tileInfo = vs_Pos;
     tileInfo[2] = color;
-    fs_Pos = tileInfo;
+    
+    vec3 uv = 0.5 * (vs_Pos.xyz + vec3(1.0));
+    uv[0] = uv[0] / 88.0 + transform[1][1];
+    uv[1] = 16.0 / 1104.0 - uv[1] / 69.0 + transform[2][1];
+    fs_Pos = vec4(uv, 1.0);
     gl_Position = translate * scale * vs_Pos;
 
 

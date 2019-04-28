@@ -46,6 +46,349 @@ class Parameters {
 
 let parameters = new Parameters(1.0, 1.0);
 
+function tileOffsets(tileNum: number): [number, number] {
+  switch(tileNum) {
+    case 0.0: {
+      // grass tile
+      return [ 16.0 / 1408.0, 0.0]; 
+      break;
+    } 
+
+    //road tile
+    case 1.0: {
+      return [18.0 * 16.0 / 1408.0, 18.0 * 16.0 / 1104.0]
+        break;
+        
+    } 
+    case 2.0: {
+        //fs_Col = vec4(1.0, 0.0, 0.0, 1.0);
+        return [0.0, 0.0]
+    }
+     // horizontal water below cliff tile
+    case 3.0: {
+       
+        return [16.0 / 1408.0, 18.0 * 16.0 / 1104.0]
+        break;
+    }
+    case 4.0: {
+        // water tile
+        return [38.0 * 16.0 / 1408.0, 0.0];
+        break;
+    }
+    case 5.0: {
+        // horizontal water to cliff corner tile, bottom right of square corner
+        return [7.0 * 16.0 / 1408.0, 45.0 * 16.0 / 1104.0]
+        break;
+    }
+    case 6.0: {
+        // horizontal water to cliff corner tile, top left of square corner
+        return [4.0 * 16.0 / 1408.0, 14.0 * 16.0 / 1104.0]
+        break
+    }
+    case 7.0: {
+        // horizontal water to cliff corner tile, top right of square corner
+        return [16.0 / 1408.0,  17.0 * 16.0 / 1104.0]
+        break
+    }
+    case 8.0: {
+        // horizontal water to cliff corner tile, bottom left of square corner
+        return [6.0 * 16.0 / 1408.0, 45.0 * 16.0 / 1104.0]
+        break
+
+    }
+    case 9.0: {
+        // shallow water
+        return [6.0 * 16.0 / 1408.0, 51.0 * 16.0 / 1104.0]
+        break
+    }
+    case 10.0: {
+        // stairs
+        return [7.0 * 16.0 / 1408.0, 25.0 * 16.0 / 1104.0]
+        break;
+    }
+    //////////////// pokemart tiles 
+    case 11.0: {
+        // stairs
+        return [0.0 * 16.0 / 1408.0, 12.0 * 16.0 / 1104.0]
+        break
+    }
+    case 12.0: {
+        // stairs
+        return [1.0 * 16.0 / 1408.0, 8.0 * 16.0 / 1104.0]
+        break
+    }
+    case 13.0: {
+        // stairs
+        return [2.0 * 16.0 / 1408.0, 8.0 * 16.0 / 1104.0]
+        break
+    }
+    case 14.0: {
+        // stairs
+        return [3.0 * 16.0 / 1408.0, 8.0 * 16.0 / 1104.0]
+        break
+    }
+    case 15.0: {
+        // stairs
+        return [0.0 * 16.0 / 1408.0, 7.0 * 16.0 / 1104.0]
+        break
+    }
+    case 16.0: {
+        // stairs
+        return [1.0 * 16.0 / 1408.0, 7.0 * 16.0 / 1104.0]
+        break
+    }
+    case 17.0: {
+        // stairs
+        return [2.0 * 16.0 / 1408.0, 7.0 * 16.0 / 1104.0]
+        break
+    }
+    case 18.0: {
+        // stairs
+        return [ 3.0 * 16.0 / 1408.0, 7.0 * 16.0 / 1104.0]
+        break
+    }
+    case 19.0: {
+        // stairs
+        return [0.0 * 16.0 / 1408.0, 6.0 * 16.0 / 1104.0]
+        break
+    }
+    case 20.0: {
+      return [1.0 * 16.0 / 1408.0, 6.0 * 16.0 / 1104.0]
+        break
+    }
+    case 21.0: {
+        return [2.0 * 16.0 / 1408.0, 6.0 * 16.0 / 1104.0]
+        break
+    }
+    case 22.0: {
+        return [3.0 * 16.0 / 1408.0, 6.0 * 16.0 / 1104.0]
+        break
+    }
+    case 23.0: {
+        // stairs
+        return [0.0 * 16.0 / 1408.0, 5.0 * 16.0 / 1104.0]
+        break
+    }
+    case 24.0: {
+        // stairs
+        return [1.0 * 16.0 / 1408.0, 5.0 * 16.0 / 1104.0]
+        break
+    }
+    case 25.0: {
+        // stairs
+        return [1.0 * 16.0 / 1408.0, 5.0 * 16.0 / 1104.0]
+        break;
+    }
+    case 26.0: {
+        // stairs
+        return [3.0 * 16.0 / 1408.0, 5.0 * 16.0 / 1104.0];
+        break;
+    }
+
+    /////////////////////// pokecenter
+    case 27.0: {
+      // stairs
+      return [0.0 * 16.0 / 1408.0, 12.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 28.0: {
+      // stairs
+      return [1.0 * 16.0 / 1408.0, 12.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 29.0: {
+      // stairs
+      return [2.0 * 16.0 / 1408.0, 12.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 30.0: {
+      // stairs
+      return [3.0 * 16.0 / 1408.0, 12.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 31.0: {
+      // stairs
+      return [0.0 * 16.0 / 1408.0, 11.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 32.0: {
+      // stairs
+      return [1.0 * 16.0 / 1408.0, 11.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 33.0: {
+      // stairs
+      return [2.0 * 16.0 / 1408.0, 11.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 34.0: {
+      // stairs
+      return [3.0 * 16.0 / 1408.0, 11.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 35.0: {
+      // stairs
+      return [0.0 * 16.0 / 1408.0, 10.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 36.0: {
+      // stairs
+      return [1.0 * 16.0 / 1408.0, 10.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 37.0: {
+      // stairs
+      return [2.0 * 16.0 / 1408.0, 10.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 38.0: {
+      // stairs
+      return [3.0 * 16.0 / 1408.0, 10.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 39.0: {
+      // stairs
+      return [0.0 * 16.0 / 1408.0, 9.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 40.0: {
+      // stairs
+      return [1.0 * 16.0 / 1408.0, 9.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 41.0: {
+      // stairs
+      return [2.0 * 16.0 / 1408.0, 9.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 42.0: {
+      // stairs
+      return [3.0 * 16.0 / 1408.0, 9.0 * 16.0 / 1104.0];
+      break;
+    }
+    //////////////// house
+    case 43.0: {
+      // stairs
+      return [72.0 * 16.0 / 1408.0, 2.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 44.0: {
+      // stairs
+      return [73.0 * 16.0 / 1408.0, 2.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 45.0: {
+      // stairs
+      return [74.0 * 16.0 / 1408.0, 2.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 46.0: {
+      // stairs
+      return [75.0 * 16.0 / 1408.0, 2.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 47.0: {
+      // stairs
+      return [72.0 * 16.0 / 1408.0, 1.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 48.0: {
+      // stairs
+      return [73.0 * 16.0 / 1408.0, 1.0 * 16.0 / 1104.0];
+      break;
+    }
+
+    case 49.0: {
+      // stairs
+      return [74.0 * 16.0 / 1408.0, 1.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 50.0: {
+      // stairs
+      return [75.0 * 16.0 / 1408.0, 1.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 51.0: {
+      // stairs
+      return [72.0 * 16.0 / 1408.0, 0.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 52.0: {
+      // stairs
+      return [73.0 * 16.0 / 1408.0, 0.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 53.0: {
+      // stairs
+      return [74.0 * 16.0 / 1408.0, 0.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 54.0: {
+      // stairs
+      return [75.0 * 16.0 / 1408.0, 0.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 55.0: {
+      // stairs
+      return [76.0 * 16.0 / 1408.0, 0.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 56.0: {
+      // stairs
+      return [77.0 * 16.0 / 1408.0, 0.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 57.0: {
+      // stairs
+      return [78.0 * 16.0 / 1408.0, 0.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 58.0: {
+      // stairs
+      return [79.0 * 16.0 / 1408.0, 0.0 * 16.0 / 1104.0];
+      break;
+    }
+
+    // coast vertical water to land
+    case 59.0: {
+      // stairs
+      return [6.0 * 16.0 / 1408.0, 44.0 * 16.0 / 1104.0];
+      break;
+    }
+
+    // coast vertical land to water
+    case 60.0: {
+      // stairs
+      return [7.0 * 16.0 / 1408.0, 44.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 61.0: {
+      // shore to shallow, back, top left corner
+      return [6.0 * 16.0 / 1408.0, 43.0 * 16.0 / 1104.0];
+      break;
+    }
+
+    case 62.0: {
+      // shore to shallow, back, top right corner
+      return [7.0 * 16.0 / 1408.0, 43.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 63.0: {
+      // shore to shallow, back, top right corner
+      return [2.0 * 16.0 / 1408.0, 0.0 * 16.0 / 1104.0];
+      break;
+    }
+
+
+    default: {
+        
+        return [0.0, 0.0]
+
+      
+    }
+  }
+}
+
 
 
 function loadScene() {
@@ -142,7 +485,8 @@ function loadScene() {
     for (let col = 0; col < grid[0].length; col++) {
       //console.log('fuck');
       let info: mat4 = mat4.create();
-      info = mat4.fromValues(currentCol, grid[row][col], 1, 1, currentRow, 1, 1, 1, colScale, 1, 1, 1, rowScale, 1, 1, 1);
+      let offset: [number, number] = tileOffsets(grid[row][col]);
+      info = mat4.fromValues(currentCol, grid[row][col], 1, 1, currentRow, offset[0], 1, 1, colScale, offset[1], 1, 1, rowScale, 1, 1, 1);
 
       array.push(info)
       currentCol += colMove;
@@ -167,7 +511,7 @@ function loadScene() {
   let transformArray3 = [];
 
   for (let mat of array) {
-    console.log(mat);
+    //console.log(mat);
     for (let i = 0; i <  4;  i++) {
       let colVec = vec4.fromValues(0.0, 0.0, 0.0, 0.0);
       for (let j = 0; j < 4; j++) {
@@ -191,7 +535,7 @@ function loadScene() {
           }
         //}
       }
-      console.log(colVec);
+      //console.log(colVec);
       
     }
   }
@@ -250,7 +594,7 @@ function main() {
     parameters.iterations = Math.floor(val);
     loadScene();
     //lambert.setTerrain(val);
-    console.log(val);
+    //console.log(val);
   }); // Min and max
   gui.add(parameters, 'angle', 0.5, 1.5).onChange(function(val: number) {
     parameters.angle = val;
