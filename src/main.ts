@@ -374,10 +374,212 @@ function tileOffsets(tileNum: number): [number, number] {
       break;
     }
     case 63.0: {
-      // shore to shallow, back, top right corner
+      // shore to shallow, water above land, horizontal
       return [2.0 * 16.0 / 1408.0, 0.0 * 16.0 / 1104.0];
       break;
     }
+
+    case 64.0: {
+      // cliff to land, top left corner
+      return [0.0 * 16.0 / 1408.0, 13.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 65.0: {
+      // cliff to land, top horizontal
+      return [1.0 * 16.0 / 1408.0, 13.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 66.0: {
+      // cliff to land, bottom horizontal
+      return [1.0 * 16.0 / 1408.0, 15.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 67.0: {
+      // cliff to land, top right corner
+      return [2.0 * 16.0 / 1408.0, 13.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 68.0: {
+      // cliff to land, bottom left corner
+      return [0.0 * 16.0 / 1408.0, 15.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 69.0: {
+      // cliff to land, bottom right corner
+      return [2.0 * 16.0 / 1408.0, 15.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 70.0: {
+      // cliff to land, vertical left side
+      return [0.0 * 16.0 / 1408.0, 14.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 71.0: {
+      // cliff to land, vertical right side
+      return [2.0 * 16.0 / 1408.0, 14.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 72.0: {
+      // cliff to land, bottom horizontal
+      return [1.0 * 16.0 / 1408.0, 14.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 73.0: {
+      // cliff to sand, top left corner
+      return [0.0 * 16.0 / 1408.0, 16.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 74.0: {
+      // cliff to sand, top horizontal
+      return [1.0 * 16.0 / 1408.0, 16.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 75.0: {
+      // cliff to sand, bottom horizontal
+      return [1.0 * 16.0 / 1408.0, 18.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 76.0: {
+      // cliff to sand, top right corner
+      return [2.0 * 16.0 / 1408.0, 16.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 77.0: {
+      // cliff to sand, bottom left corner
+      return [0.0 * 16.0 / 1408.0, 18.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 78.0: {
+      // cliff to sand, bottom right corner
+      return [2.0 * 16.0 / 1408.0, 18.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 79.0: {
+      // cliff to sand, vertical left side
+      return [0.0 * 16.0 / 1408.0, 17.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 80.0: {
+      // cliff to sand, vertical right side
+      return [2.0 * 16.0 / 1408.0, 17.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 81.0: {
+      // sand
+      return [1.0 * 16.0 / 1408.0, 36.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 82.0: {
+      // sand to shallow, top left corner
+      return [5.0 * 16.0 / 1408.0, 50.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 83.0: {
+      // sand to shallow, vertical left
+      return [5.0 * 16.0 / 1408.0, 51.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 84.0: {
+      // sand to shallow, bottom left corner
+      return [5.0 * 16.0 / 1408.0, 52.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 85.0: {
+      // sand to shallow, horizontal up
+      return [6.0 * 16.0 / 1408.0, 50.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 86.0: {
+      // sand to shallow, horizontal bottom
+      return [6.0 * 16.0 / 1408.0, 52.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 87.0: {
+      // sand to shallow, top right corner
+      return [7.0 * 16.0 / 1408.0, 50.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 88.0: {
+      // sand to shallow, vertical right
+      return [7.0 * 16.0 / 1408.0, 51.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 89.0: {
+      // sand to shallow, bottom right corner
+      return [7.0 * 16.0 / 1408.0, 52.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 90.0: {
+      // shallow to deep, top left corner
+      return [5.0 * 16.0 / 1408.0, 53.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 91.0: {
+      // shallow to deep, vertical left
+      return [5.0 * 16.0 / 1408.0, 54.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 92.0: {
+      // shallow to deep, bottom left corner
+      return [5.0 * 16.0 / 1408.0, 55.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 93.0: {
+      // shallow to deep, horizontal up
+      return [6.0 * 16.0 / 1408.0, 53.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 94.0: {
+      // shallow to deep, horizontal bottom
+      return [6.0 * 16.0 / 1408.0, 55.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 95.0: {
+      // shallow to deep, top right corner
+      return [7.0 * 16.0 / 1408.0, 53.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 96.0: {
+      // shallow to deep, vertical right
+      return [7.0 * 16.0 / 1408.0, 54.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 97.0: {
+      // shallow to deep, bottom right corner
+      return [7.0 * 16.0 / 1408.0, 55.0 * 16.0 / 1104.0];
+      break;
+    }
+    case 98.0: {
+      // shallow to deep, water  _| shallow
+      return [3.0 * 16.0 / 1408.0, 51.0 * 16.0 / 1104.0];
+      break;
+    }
+
+    case 99.0: {
+      //                        __shallow
+      // shallow to deep, water  | 
+      return [3.0 * 16.0 / 1408.0, 52.0 * 16.0 / 1104.0];
+      break;
+    }
+
+    case 100.0: {
+      // shallow to deep, shallow  |_ deep
+      return [4.0 * 16.0 / 1408.0, 51.0 * 16.0 / 1104.0];
+      break;
+    }
+
+    case 101.0: {
+      //                 shallow __
+      // shallow to deep,        | water
+      return [4.0 * 16.0 / 1408.0, 52.0 * 16.0 / 1104.0];
+      break;
+    }
+
+
+    
+
+
+
 
 
     default: {
