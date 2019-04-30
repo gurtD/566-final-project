@@ -24,13 +24,10 @@ class CompatibilityOracle {
         this.data = new Set<string>();
         for (let entry of data) {
             this.data.add(String(entry[0]) + "," + String(entry[1]) + "," + String(entry[2]));
-        }
-        
-        
+        }  
     }
 
     check (tile1: number, tile2: number, direction: Dirs): boolean {
-        //let test: [number, number, Dirs] = [tile1, tile2, direction];
         return this.data.has(String(tile1) + "," + String(tile2) + "," + String(direction));
     }
 
@@ -51,15 +48,7 @@ class Wavefunction {
             if (!buildingTiles.has(item) && !roadTiles.has(item) && !(item >= 11 && item <= 58) && !(item >= 103 && item <= 132)  ) {
                 tiles.add(item);
             }
-                 
-            
         }
-
-        
-
-        
-        
-        
         let coefficientsAndPaths: [Set<number>[][], Set<[number, number]>] = Wavefunction.init_coefficients(size, tiles, buildingCount, buildingTiles, roadTiles);
         return new Wavefunction(coefficientsAndPaths[0], coefficientsAndPaths[1], weights);
     }
@@ -140,10 +129,6 @@ class Wavefunction {
             }
         }
 
-        
-
-        
-        
         return [coefficients, pathBuildingCoords];
     } 
 
@@ -405,7 +390,7 @@ class Model {
 
             }
         }
-        //weights.set(0, weights.get(0) / 8);
+        //weights.set(0, weights.get(0) / 8); //uncomment this if when using weight you dont want grass to be the overwhelming tile
         return [compatibilities, weights];
     }
 
@@ -502,16 +487,9 @@ class Model {
                 console.log(e)
                 continue;
             }
-        }
-
-        
+        }  
     }
 }
-
-
-
-
-
 
 class ValidGrid {
     grid: number[][]
@@ -737,8 +715,6 @@ class ValidGrid {
 
     }
 
-
-    
     public static test() {
         let testGrid: ValidGrid = new ValidGrid([10, 50], 4);
         testGrid.create_paths();
