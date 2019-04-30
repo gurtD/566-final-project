@@ -22,6 +22,6 @@
     "webgl-obj-loader": "^1.0.0"
   },
   "files": [
-    "src/resources/pokemonEmeraldTileset.png"
+    "resources/pokemonEmeraldTileset.png"
   ]
  }
