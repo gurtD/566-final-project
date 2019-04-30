@@ -20,5 +20,8 @@
     "gl-matrix": "^2.4.0",
     "stats-js": "^1.0.0-alpha1",
     "webgl-obj-loader": "^1.0.0"
+  },
+  "files":  {
+      "src/resources/pokemonEmeraldTileset.png"
   }
-}
+ }
