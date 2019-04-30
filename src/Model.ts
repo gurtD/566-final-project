@@ -84,7 +84,6 @@ class Wavefunction {
                 } 
                 else if (validGrid.grid[x][y] == 2) {
                     row.push(new Set(buildingTiles))
-                    //pathBuildingCoords.add([x, y]);
                     buildingCoords.add([x, y]);
                 } 
                 else if (validGrid.grid[x][y] == 1) {
@@ -269,10 +268,10 @@ class Model {
     compatibility_oracle: CompatibilityOracle;
     wavefunction: Wavefunction;
 
-    constructor(output_size: [number, number], weights: Map<number, number>, compatibility_oracle: CompatibilityOracle, buildingTiles: Set<number>, roadTiles: Set<number> ) {
+    constructor(output_size: [number, number], weights: Map<number, number>, compatibility_oracle: CompatibilityOracle, buildingTiles: Set<number>, roadTiles: Set<number>, buildingCount: number ) {
         this.output_size = output_size;
         this.compatibility_oracle = compatibility_oracle;
-        this.wavefunction = Wavefunction.mk(output_size, weights, 6, buildingTiles, roadTiles);
+        this.wavefunction = Wavefunction.mk(output_size, weights, buildingCount, buildingTiles, roadTiles);
         
     }
 
@@ -410,7 +409,7 @@ class Model {
         return [compatibilities, weights];
     }
 
-    public static test(): number[][] {
+    public static test(buildingCount: number, colLength: number, rowLength: number): number[][] {
         // 1 is land
         // 2 is coast 
         // 3 is sea
@@ -491,18 +490,10 @@ class Model {
         let roadTiles: Set<number> = new Set<number>();
         roadTiles.add(1);
         
-        /*
-        for(var item of Array.from(weights.keys())) {
-            
-            buildingTiles.add(item); 
-            roadTiles.add(item)
-        }
-        */
-        
         let compatibility_oracle: CompatibilityOracle = new CompatibilityOracle(compatibilities);
         while(true) {
             try {
-                let model: Model = new Model([25, 40], weights, compatibility_oracle, buildingTiles, roadTiles);
+                let model: Model = new Model([colLength, rowLength], weights, compatibility_oracle, buildingTiles, roadTiles, buildingCount);
                 let output: number[][] = model.run();
                 this.render(output);
                 return output;
@@ -697,10 +688,8 @@ class ValidGrid {
 
                 let x: number = p[0];
                 let y: number = p[1];
-                //console.log("current location is %d, %d", x, y);
 
                 if (x == target[0] && y == target[1]) { 
-                    //console.log("we found the point")
                     return p[2]
                 }
 
@@ -728,51 +717,14 @@ class ValidGrid {
 
         }
 
-        /*
-        function dfs_util(co_ord: [number, number], target: [number, number], visited: Set<string>): Boolean {
-            let x: number = co_ord[0];
-            let y: number = co_ord[1];
-            
-            if (target[0] == x && target[1] == y) {
-                console.log("enter the true statment")
-                console.log("we get to %d, %d with a true", x, y)
-                return true
-            }
-
-            if (x < 0 || x >= width || y < 0 || y >= height || gridCopy[x][y] == 2)  {
-                return false
-            }
-            console.log("current x and y are %d, %d", x, y);
-            
-  
-            visited.add(String(x) + "," + String(y));
-            //console.log("we get to the for loop")
-            for (let d of direction.values()) {
-                let newX: number = x + d[0]
-                let newY: number = y + d[1];
-                if (!visited.has(String(newX) + "," + String(newY))) {
-                    if (dfs_util([newX, newY], target, visited)) {
-                        gridCopy[x][y] = 1;
-                        return true
-                    }
-                    
-                }
-            }
-
-            return false
-        }
-        */
-        //console.log("the source building is %d, %d", someBuilding[0], someBuilding[1])
+        
         for (let otherBuilding of otherBuildings) {
-            //console.log("/////////////////////////////////////////////")
-            //console.log("other building coords are %d, %d", otherBuilding[0], otherBuilding[1]);
-            //dfs_util([someBuilding[0] + 1, someBuilding[1]], otherBuilding, new Set<string>());
+            
             let path: Set<[number, number]> = bfs_util([someBuilding[0] + 1, someBuilding[1]] , otherBuilding, this.building_location);
             if (path == null) {
                 console.log("path is null")
             }
             if (!(path == null)) {
-                //console.log("we have a path")
                 for (let p of path) {
                     if (p[0] == otherBuilding[0] && p[1] == otherBuilding[1]) {
                         continue
@@ -781,11 +733,7 @@ class ValidGrid {
                 }
             }
         }
-        
-
-
-
-        //this.grid = gridCopy;
+    
 
     }
 
