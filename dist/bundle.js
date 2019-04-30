@@ -6618,9 +6618,9 @@ function loadScene() {
     square.create();
     screenQuad = new __WEBPACK_IMPORTED_MODULE_3__geometry_ScreenQuad__["a" /* default */]();
     screenQuad.create();
-    noiseTex1 = new __WEBPACK_IMPORTED_MODULE_10__rendering_gl_Texture__["a" /* default */]('../resources/pokemonEmeraldTileset.png', 0); /// this is the texture that instanced is using
-    noiseTex2 = new __WEBPACK_IMPORTED_MODULE_10__rendering_gl_Texture__["a" /* default */]('../resources/fbmRep2.png', 0);
-    flameSource = new __WEBPACK_IMPORTED_MODULE_10__rendering_gl_Texture__["a" /* default */]('../resources/minecraft_textures_all.png', 1);
+    noiseTex1 = new __WEBPACK_IMPORTED_MODULE_10__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/..../566-final-project/master/resources/pokemonEmeraldTileset.png', 0); /// this is the texture that instanced is using
+    noiseTex2 = new __WEBPACK_IMPORTED_MODULE_10__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/..../566-final-project/master/resources/fbmRep2.png', 0);
+    flameSource = new __WEBPACK_IMPORTED_MODULE_10__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/..../566-final-project/master/resources/minecraft_textures_all.png', 1);
     // testing wfc
     console.log("Starting model test");
     let grid = __WEBPACK_IMPORTED_MODULE_9__Model__["a" /* Model */].test(parameters.buildings, parameters.rowLength, parameters.colLength);
