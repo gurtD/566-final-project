@@ -672,6 +672,51 @@ function tileOffsets(tileNum: number): [number, number] {
     case 132.0: {
       return [4.0 * 16.0 / 1408.0, 53.0 * 16.0 / 1104.0];
     }
+    case 133.0: {
+      // flower 
+      return [5.0 * 16.0 / 1408.0, 1.0 * 16.0 / 1104.0];
+    }
+    case 134.0: {
+      // rock in shallow
+      return [4.0 * 16.0 / 1408.0, 50.0 * 16.0 / 1104.0];
+    }
+
+    case 135.0: {
+      // rock in deep, top left
+      return [0.0 * 16.0 / 1408.0, 42.0 * 16.0 / 1104.0];
+    }
+    case 136.0: {
+      // rock in deep, bottom left
+      return [0.0 * 16.0 / 1408.0, 43.0 * 16.0 / 1104.0];
+    }
+    case 137.0: {
+      // rock in deep, top right
+      return [1.0 * 16.0 / 1408.0, 42.0 * 16.0 / 1104.0];
+    }
+    case 138.0: {
+      // rock in deep, bottom right
+      return [1.0 * 16.0 / 1408.0, 43.0 * 16.0 / 1104.0];
+    }
+
+    case 139.0: {
+      // tree, top left
+      return [74.0 * 16.0 / 1408.0, 17.0 * 16.0 / 1104.0];
+    }
+    case 140.0: {
+      // tree, bottom left
+      return [74.0 * 16.0 / 1408.0, 18.0 * 16.0 / 1104.0];
+    }
+
+    case 141.0: {
+      // tree, top right
+      return [75.0 * 16.0 / 1408.0, 17.0 * 16.0 / 1104.0];
+    }
+    case 142.0: {
+      // tree, bottom right
+      return [75.0 * 16.0 / 1408.0, 18.0 * 16.0 / 1104.0];
+    }
+    
+    
 
     
 
