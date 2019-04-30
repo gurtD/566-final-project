@@ -687,7 +687,7 @@ function loadScene() {
   screenQuad = new ScreenQuad();
   screenQuad.create();
 
-  noiseTex1 = new Texture('https://raw.githubusercontent.com/..../566-final-project/master/resources/pokemonEmeraldTileset.png', 0) /// this is the texture that instanced is using
+  noiseTex1 = new Texture('../resources/pokemonEmeraldTileset.png', 0) /// this is the texture that instanced is using
   noiseTex2 = new Texture('../resources/fbmRep2.png', 0)
   flameSource = new Texture('../resources/minecraft_textures_all.png', 1)
 

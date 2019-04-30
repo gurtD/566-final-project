@@ -17904,6 +17904,7 @@ class Texture {
             }.bind(this);
         }
         img.src = imgSource; // load the image
+        img.crossOrigin = '';
     }
 }
 /* unused harmony export Texture */
